@@ -150,3 +150,39 @@ GitHub Actions automatically runs formatting checks, static analysis, and Flutte
 ## Repository
 
 https://github.com/Nadio75/RondiTrackApp
+
+
+
+## Running RondiTrack in Chrome
+
+### Requirements
+- Flutter SDK
+- Dart SDK
+- Google Chrome
+
+### Run the application
+
+Open PowerShell in the mobile directory:
+
+```powershell
+flutter pub get
+
+flutter run -d chrome `
+  --dart-define=APP_FLAVOR=dev `
+  --dart-define=API_BASE_URL=http://localhost:8080
+```
+
+Note: localhost:8080 is a development placeholder.
+Configure a working backend URL if API connectivity is required.
+
+### Run automated tests
+
+```powershell
+flutter test
+```
+
+### Supported stokvel scenarios
+- Bitcube: Treasurer role, R500 monthly contribution
+- Soweto Teachers: Member role, R750 monthly contribution
+- Paid and pending contribution states
+- Separate stokvel membership contexts
