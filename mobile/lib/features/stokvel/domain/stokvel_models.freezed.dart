@@ -282,7 +282,7 @@ as StokvelRole,
 /// @nodoc
 mixin _$Stokvel {
 
- String get id; String get name; String get description; int get monthlyContributionCents;
+ String get id; String get name; String get description; Cents get monthlyContributionCents;
 /// Create a copy of Stokvel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -318,7 +318,7 @@ abstract mixin class $StokvelCopyWith<$Res>  {
   factory $StokvelCopyWith(Stokvel value, $Res Function(Stokvel) _then) = _$StokvelCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String description, int monthlyContributionCents
+ String id, String name, String description, Cents monthlyContributionCents
 });
 
 
@@ -341,7 +341,7 @@ id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,monthlyContributionCents: null == monthlyContributionCents ? _self.monthlyContributionCents : monthlyContributionCents // ignore: cast_nullable_to_non_nullable
-as int,
+as Cents,
   ));
 }
 
@@ -426,7 +426,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String description,  int monthlyContributionCents)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String description,  Cents monthlyContributionCents)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Stokvel() when $default != null:
 return $default(_that.id,_that.name,_that.description,_that.monthlyContributionCents);case _:
@@ -447,7 +447,7 @@ return $default(_that.id,_that.name,_that.description,_that.monthlyContributionC
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String description,  int monthlyContributionCents)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String description,  Cents monthlyContributionCents)  $default,) {final _that = this;
 switch (_that) {
 case _Stokvel():
 return $default(_that.id,_that.name,_that.description,_that.monthlyContributionCents);case _:
@@ -467,7 +467,7 @@ return $default(_that.id,_that.name,_that.description,_that.monthlyContributionC
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String description,  int monthlyContributionCents)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String description,  Cents monthlyContributionCents)?  $default,) {final _that = this;
 switch (_that) {
 case _Stokvel() when $default != null:
 return $default(_that.id,_that.name,_that.description,_that.monthlyContributionCents);case _:
@@ -488,7 +488,7 @@ class _Stokvel implements Stokvel {
 @override final  String id;
 @override final  String name;
 @override final  String description;
-@override final  int monthlyContributionCents;
+@override final  Cents monthlyContributionCents;
 
 /// Create a copy of Stokvel
 /// with the given fields replaced by the non-null parameter values.
@@ -522,7 +522,7 @@ abstract mixin class _$StokvelCopyWith<$Res> implements $StokvelCopyWith<$Res> {
   factory _$StokvelCopyWith(_Stokvel value, $Res Function(_Stokvel) _then) = __$StokvelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String description, int monthlyContributionCents
+ String id, String name, String description, Cents monthlyContributionCents
 });
 
 
@@ -545,7 +545,7 @@ id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,monthlyContributionCents: null == monthlyContributionCents ? _self.monthlyContributionCents : monthlyContributionCents // ignore: cast_nullable_to_non_nullable
-as int,
+as Cents,
   ));
 }
 
@@ -555,7 +555,7 @@ as int,
 /// @nodoc
 mixin _$Contribution {
 
- String get id; String get stokvelId; String get memberId; int get amountCents; ContributionStatus get status;
+ String get id; String get stokvelId; String get memberId; Cents get amountCents; ContributionStatus get status;
 /// Create a copy of Contribution
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -591,7 +591,7 @@ abstract mixin class $ContributionCopyWith<$Res>  {
   factory $ContributionCopyWith(Contribution value, $Res Function(Contribution) _then) = _$ContributionCopyWithImpl;
 @useResult
 $Res call({
- String id, String stokvelId, String memberId, int amountCents, ContributionStatus status
+ String id, String stokvelId, String memberId, Cents amountCents, ContributionStatus status
 });
 
 
@@ -614,7 +614,7 @@ id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,stokvelId: null == stokvelId ? _self.stokvelId : stokvelId // ignore: cast_nullable_to_non_nullable
 as String,memberId: null == memberId ? _self.memberId : memberId // ignore: cast_nullable_to_non_nullable
 as String,amountCents: null == amountCents ? _self.amountCents : amountCents // ignore: cast_nullable_to_non_nullable
-as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as Cents,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ContributionStatus,
   ));
 }
@@ -700,7 +700,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String stokvelId,  String memberId,  int amountCents,  ContributionStatus status)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String stokvelId,  String memberId,  Cents amountCents,  ContributionStatus status)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Contribution() when $default != null:
 return $default(_that.id,_that.stokvelId,_that.memberId,_that.amountCents,_that.status);case _:
@@ -721,7 +721,7 @@ return $default(_that.id,_that.stokvelId,_that.memberId,_that.amountCents,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String stokvelId,  String memberId,  int amountCents,  ContributionStatus status)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String stokvelId,  String memberId,  Cents amountCents,  ContributionStatus status)  $default,) {final _that = this;
 switch (_that) {
 case _Contribution():
 return $default(_that.id,_that.stokvelId,_that.memberId,_that.amountCents,_that.status);case _:
@@ -741,7 +741,7 @@ return $default(_that.id,_that.stokvelId,_that.memberId,_that.amountCents,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String stokvelId,  String memberId,  int amountCents,  ContributionStatus status)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String stokvelId,  String memberId,  Cents amountCents,  ContributionStatus status)?  $default,) {final _that = this;
 switch (_that) {
 case _Contribution() when $default != null:
 return $default(_that.id,_that.stokvelId,_that.memberId,_that.amountCents,_that.status);case _:
@@ -762,7 +762,7 @@ class _Contribution implements Contribution {
 @override final  String id;
 @override final  String stokvelId;
 @override final  String memberId;
-@override final  int amountCents;
+@override final  Cents amountCents;
 @override final  ContributionStatus status;
 
 /// Create a copy of Contribution
@@ -797,7 +797,7 @@ abstract mixin class _$ContributionCopyWith<$Res> implements $ContributionCopyWi
   factory _$ContributionCopyWith(_Contribution value, $Res Function(_Contribution) _then) = __$ContributionCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String stokvelId, String memberId, int amountCents, ContributionStatus status
+ String id, String stokvelId, String memberId, Cents amountCents, ContributionStatus status
 });
 
 
@@ -820,7 +820,7 @@ id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,stokvelId: null == stokvelId ? _self.stokvelId : stokvelId // ignore: cast_nullable_to_non_nullable
 as String,memberId: null == memberId ? _self.memberId : memberId // ignore: cast_nullable_to_non_nullable
 as String,amountCents: null == amountCents ? _self.amountCents : amountCents // ignore: cast_nullable_to_non_nullable
-as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as Cents,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ContributionStatus,
   ));
 }

@@ -79,7 +79,10 @@ void main() {
       homeSummariesProvider('user-1').future,
     );
 
-    expect(summaries, hasLength(1));
-    expect(summaries.single.stokvel.name, 'Bitcube');
+    expect(summaries, hasLength(2));
+    expect(
+      summaries.map((summary) => summary.stokvel.name),
+      containsAll(['Bitcube', 'Soweto Teachers']),
+    );
   });
 }

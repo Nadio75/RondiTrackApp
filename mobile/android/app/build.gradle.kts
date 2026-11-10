@@ -11,15 +11,18 @@ android {
         create("dev") {
             dimension = "environment"
             applicationIdSuffix = ".dev"
+            manifestPlaceholders["appLabel"] = "RondiTrack Dev"
         }
 
         create("staging") {
             dimension = "environment"
             applicationIdSuffix = ".staging"
+            manifestPlaceholders["appLabel"] = "RondiTrack Staging"
         }
 
         create("prod") {
             dimension = "environment"
+            manifestPlaceholders["appLabel"] = "RondiTrack"
         }
     }
 

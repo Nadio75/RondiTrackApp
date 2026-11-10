@@ -21,8 +21,11 @@ void main() {
       homeStokvelsProvider('user-1').future,
     );
 
-    expect(stokvels.length, 1);
-    expect(stokvels.single.name, 'Bitcube');
+    expect(stokvels.length, 2);
+    expect(
+      stokvels.map((stokvel) => stokvel.name),
+      containsAll(['Bitcube', 'Soweto Teachers']),
+    );
   });
 
   test('Naledi receives an empty stokvel list', () async {

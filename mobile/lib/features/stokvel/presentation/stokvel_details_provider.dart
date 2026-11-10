@@ -4,15 +4,24 @@ import '../../session/presentation/session_provider.dart';
 import '../data/fake_stokvel_repository.dart';
 import '../domain/stokvel_repository.dart';
 
-final stokvelDetailsProvider = FutureProvider.autoDispose
-    .family<StokvelDetails?, String>((ref, stokvelId) async {
-      final user = ref.watch(sessionProvider);
+class StokvelDetailsNotifier extends AsyncNotifier<StokvelDetails?> {
+  StokvelDetailsNotifier(this.stokvelId);
 
-      if (user == null) return null;
+  final String stokvelId;
 
-      final repository = ref.watch(stokvelRepositoryProvider);
+  @override
+  Future<StokvelDetails?> build() async {
+    final user = ref.watch(sessionProvider);
+    if (user == null) {
+      return null;
+    }
+    final repository = ref.watch(stokvelRepositoryProvider);
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    return repository.getDetails(userId: user.id, stokvelId: stokvelId);
+  }
+}
 
-      await Future<void>.delayed(const Duration(milliseconds: 400));
-
-      return repository.getDetails(userId: user.id, stokvelId: stokvelId);
-    });
+final stokvelDetailsProvider = AsyncNotifierProvider.autoDispose
+    .family<StokvelDetailsNotifier, StokvelDetails?, String>(
+      StokvelDetailsNotifier.new,
+    );

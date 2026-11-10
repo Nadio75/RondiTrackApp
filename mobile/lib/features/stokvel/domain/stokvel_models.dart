@@ -1,3 +1,5 @@
+import '../../../core/money/cents.dart';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'stokvel_models.freezed.dart';
@@ -22,7 +24,7 @@ abstract class Stokvel with _$Stokvel {
     required String id,
     required String name,
     required String description,
-    required int monthlyContributionCents,
+    required Cents monthlyContributionCents,
   }) = _Stokvel;
 }
 
@@ -32,7 +34,7 @@ abstract class Contribution with _$Contribution {
     required String id,
     required String stokvelId,
     required String memberId,
-    required int amountCents,
+    required Cents amountCents,
     required ContributionStatus status,
   }) = _Contribution;
 }

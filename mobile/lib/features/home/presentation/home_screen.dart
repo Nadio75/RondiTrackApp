@@ -86,7 +86,7 @@ class HomeScreen extends ConsumerWidget {
                               const SizedBox(height: 16),
                               Text(
                                 'Monthly contribution: '
-                                '${formatRands(Cents(summary.stokvel.monthlyContributionCents))}',
+                                '${formatRands(summary.stokvel.monthlyContributionCents)}',
                               ),
                               const SizedBox(height: 8),
                               Text('Role: ${summary.role.name}'),

@@ -5,3 +5,9 @@
 *.before-refresh
 *.before-summaries
 *.before-update
+# Local RondiTrack upgrade backups
+mobile/.*-backup-*/
+mobile/*.zip
+*.backup-*
+*.before-asyncnotifier.bak
+*.bak

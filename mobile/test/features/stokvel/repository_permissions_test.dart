@@ -1,3 +1,4 @@
+import 'package:ronditrack/core/money/cents.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ronditrack/features/stokvel/data/fake_stokvel_repository.dart';
 
@@ -12,7 +13,7 @@ void main() {
 
     expect(details, isNotNull);
     expect(details!.visibleContributions.length, 2);
-    expect(details.visiblePaidTotalCents, 50000);
+    expect(details.visiblePaidTotalCents, const Cents(50000));
   });
 
   test('Thabo can only view his own contribution', () {
@@ -24,7 +25,7 @@ void main() {
     expect(details, isNotNull);
     expect(details!.visibleContributions.length, 1);
     expect(details.visibleContributions.single.memberId, 'user-2');
-    expect(details.visiblePaidTotalCents, 0);
+    expect(details.visiblePaidTotalCents, const Cents(0));
   });
 
   test('Naledi cannot access Bitcube', () {

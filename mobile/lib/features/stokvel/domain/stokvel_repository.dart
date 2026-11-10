@@ -1,3 +1,4 @@
+import '../../../core/money/cents.dart';
 import 'stokvel_models.dart';
 
 class StokvelDetails {
@@ -11,7 +12,7 @@ class StokvelDetails {
   final Stokvel stokvel;
   final Membership membership;
   final List<Contribution> visibleContributions;
-  final int visiblePaidTotalCents;
+  final Cents visiblePaidTotalCents;
 }
 
 abstract class StokvelRepository {

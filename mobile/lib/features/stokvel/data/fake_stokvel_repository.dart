@@ -1,3 +1,5 @@
+import '../../../core/money/cents.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/stokvel_models.dart';
@@ -48,7 +50,7 @@ class FakeStokvelRepository implements StokvelRepository {
 
     final paidTotal = visibleContributions
         .where((item) => item.status == ContributionStatus.paid)
-        .fold<int>(0, (total, item) => total + item.amountCents);
+        .fold<Cents>(const Cents(0), (total, item) => total + item.amountCents);
 
     return StokvelDetails(
       stokvel: stokvel,

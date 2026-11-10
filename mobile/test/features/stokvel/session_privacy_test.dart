@@ -1,3 +1,4 @@
+import 'package:ronditrack/core/money/cents.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ronditrack/features/session/presentation/session_provider.dart';
@@ -19,7 +20,7 @@ void main() {
 
     expect(leratoDetails, isNotNull);
     expect(leratoDetails!.visibleContributions.length, 2);
-    expect(leratoDetails.visiblePaidTotalCents, 50000);
+    expect(leratoDetails.visiblePaidTotalCents, const Cents(50000));
 
     // Logout clears the active session.
     session.logout();
@@ -40,7 +41,7 @@ void main() {
     expect(thaboDetails, isNotNull);
     expect(thaboDetails!.visibleContributions.length, 1);
     expect(thaboDetails.visibleContributions.single.memberId, 'user-2');
-    expect(thaboDetails.visiblePaidTotalCents, 0);
+    expect(thaboDetails.visiblePaidTotalCents, const Cents(0));
 
     // Naledi is not a member of Bitcube.
     session.logout();
