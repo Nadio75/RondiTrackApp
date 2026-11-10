@@ -1,0 +1,7 @@
+﻿
+# RondiTrack temporary backups
+*.backup
+*.before-async
+*.before-refresh
+*.before-summaries
+*.before-update
