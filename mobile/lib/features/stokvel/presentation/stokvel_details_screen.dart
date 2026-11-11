@@ -2,16 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/money/cents.dart';
+import '../../../core/theme/rondi_theme.dart';
 import '../../session/data/demo_users.dart';
 import 'stokvel_details_provider.dart';
+import '../../../app/router/app_routes.dart';
+import '../data/fake_stokvel_repository.dart';
 import '../domain/stokvel_models.dart';
 import '../../session/presentation/session_provider.dart';
 import '../../home/domain/home_summaries_provider.dart';
 
 class StokvelDetailsScreen extends ConsumerWidget {
-  const StokvelDetailsScreen({required this.stokvelId, super.key});
+  const StokvelDetailsScreen({
+    required this.stokvelId,
+    this.embedded = false,
+    super.key,
+  });
 
   final String stokvelId;
+  final bool embedded;
 
   String money(Cents cents) => formatRands(cents);
 
@@ -49,52 +57,56 @@ class StokvelDetailsScreen extends ConsumerWidget {
             body: const Center(child: Text('Stokvel not found')),
           );
         }
+        final user = ref.watch(sessionProvider);
+        final currentCycle = user == null
+            ? null
+            : ref
+                  .watch(stokvelRepositoryProvider)
+                  .getActiveCycle(userId: user.id, stokvelId: stokvelId);
         final role = details.membership.role;
         final canViewAll =
             role == StokvelRole.treasurer || role == StokvelRole.chairperson;
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text(details.stokvel.name),
-            actions: [
-              Consumer(
-                builder: (context, ref, _) {
-                  final user = ref.watch(sessionProvider);
-                  if (user == null) {
-                    return const SizedBox.shrink();
-                  }
-                  final summaries = ref
-                      .watch(homeSummariesProvider(user.id))
-                      .asData
-                      ?.value;
-                  if (summaries == null || summaries.length < 2) {
-                    return const SizedBox.shrink();
-                  }
-                  return PopupMenuButton<String>(
-                    tooltip: 'Switch stokvel',
-                    icon: const Icon(Icons.swap_horiz),
-                    onSelected: (id) {
-                      if (id == stokvelId) {
-                        return;
-                      }
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute<void>(
-                          builder: (_) => StokvelDetailsScreen(stokvelId: id),
-                        ),
-                      );
-                    },
-                    itemBuilder: (_) => [
-                      for (final summary in summaries)
-                        PopupMenuItem<String>(
-                          value: summary.stokvel.id,
-                          child: Text(summary.stokvel.name),
-                        ),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
+          appBar: embedded
+              ? null
+              : AppBar(
+                  title: Text(details.stokvel.name),
+                  actions: [
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final user = ref.watch(sessionProvider);
+                        if (user == null) {
+                          return const SizedBox.shrink();
+                        }
+                        final summaries = ref
+                            .watch(homeSummariesProvider(user.id))
+                            .asData
+                            ?.value;
+                        if (summaries == null || summaries.length < 2) {
+                          return const SizedBox.shrink();
+                        }
+                        return PopupMenuButton<String>(
+                          tooltip: 'Switch stokvel',
+                          icon: const Icon(Icons.swap_horiz),
+                          onSelected: (id) {
+                            if (id == stokvelId) {
+                              return;
+                            }
+                            StokvelRoute(id: id).go(context);
+                          },
+                          itemBuilder: (_) => [
+                            for (final summary in summaries)
+                              PopupMenuItem<String>(
+                                value: summary.stokvel.id,
+                                child: Text(summary.stokvel.name),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
           body: ListView(
             padding: const EdgeInsets.all(20),
             children: [
@@ -121,6 +133,36 @@ class StokvelDetailsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+              if (currentCycle != null) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Current cycle',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text('Status: ${currentCycle.status.name}'),
+                        const SizedBox(height: 16),
+                        FilledButton.icon(
+                          onPressed: () {
+                            CycleRoute(
+                              id: stokvelId,
+                              cycleId: currentCycle.id,
+                            ).go(context);
+                          },
+                          icon: const Icon(Icons.calendar_month),
+                          label: const Text('View Current Cycle'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               const SizedBox(height: 16),
               Card(
                 child: Padding(
@@ -162,9 +204,20 @@ class StokvelDetailsScreen extends ConsumerWidget {
                       contribution.status == ContributionStatus.paid
                           ? Icons.check_circle
                           : Icons.schedule,
-                      color: contribution.status == ContributionStatus.paid
-                          ? Colors.green
-                          : Colors.orange,
+                      color: switch (contribution.status) {
+                        ContributionStatus.paid => Theme.of(
+                          context,
+                        ).extension<RondiStatusColors>()!.paid,
+                        ContributionStatus.pending => Theme.of(
+                          context,
+                        ).extension<RondiStatusColors>()!.pending,
+                        ContributionStatus.overdue => Theme.of(
+                          context,
+                        ).extension<RondiStatusColors>()!.overdue,
+                        ContributionStatus.unknown => Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant,
+                      },
                     ),
                     title: Text(
                       demoUsers

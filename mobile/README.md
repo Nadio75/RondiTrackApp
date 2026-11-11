@@ -186,3 +186,118 @@ flutter test
 - Soweto Teachers: Member role, R750 monthly contribution
 - Paid and pending contribution states
 - Separate stokvel membership contexts
+
+## Assignment 10.2 — Routes
+
+All authenticated screens use four persistent navigation branches:
+Home, Stokvels, Activity, and Profile.
+
+| Address | Screen and tab | Signed out | Not a member | Back goes to |
+|---|---|---|---|---|
+| `/home` | Home dashboard / Home | Sign-in, then Home | N/A | Home root |
+| `/stokvels` | Stokvel list / Stokvels | Sign-in, then list | Only member stokvels listed | Stokvels root |
+| `/stokvels/:id` | Stokvel details / Stokvels | Sign-in, then detail | Not found | Stokvel list |
+| `/stokvels/:id/cycles/:cycleId` | Cycle details / Stokvels | Sign-in, then cycle | Not found | Parent stokvel |
+| `/activity` | Activity feed / Activity | Sign-in, then Activity | Only permitted activity | Activity root |
+| `/profile` | Profile / Profile | Sign-in, then Profile | N/A | Profile root |
+| `/sign-in` | Demo sign-in / Outside tabs | Remain on sign-in | N/A | Cannot return to protected pages |
+| `/join/:code` | Invitation preview / Outside tabs | Sign-in, then invitation | Invalid invite shows not found | Home |
+
+### Navigation decisions
+
+- Each tab preserves its own navigation stack.
+- Tapping the active tab returns to that tab's root.
+- Switching stokvels changes the route address.
+- A cold-start cycle link reconstructs its parent stokvel route.
+- Unknown or inaccessible stokvels and cycles display the same not-found state.
+- Only internal app addresses may be remembered across sign-in.
+- Signed-out users cannot return to protected pages using Back.
+- Roles and available actions are determined by membership in the selected stokvel.
+
+
+
+## Assignment 10.2 - Implementation and Verification
+
+### Typed navigation
+
+RondiTrack uses `go_router` and `go_router_builder` for typed
+navigation.
+
+The four persistent navigation branches are:
+
+- Home
+- Stokvels
+- Activity
+- Profile
+
+The Stokvels branch supports nested stokvel and cycle routes.
+
+Navigation state is managed using `StatefulShellRoute.indexedStack`.
+
+Each branch retains its navigation stack when switching tabs.
+Selecting the active tab returns to its root.
+
+### Responsive layouts
+
+The application uses three window-size classes:
+
+| Width | Layout |
+|---|---|
+| Below 600 dp | Compact layout with bottom navigation |
+| 600-839 dp | Medium layout with navigation rail |
+| 840 dp and above | Expanded layout with navigation rail and split stokvel list/detail |
+
+Accessibility tests cover compact layouts at 360 dp with
+200% text scaling.
+
+### Material 3 themes
+
+The application uses Material 3 with a shared seed color.
+
+Light and dark color schemes are generated using
+`ColorScheme.fromSeed`.
+
+A ThemeExtension provides semantic contribution status colors.
+
+Automated tests verify theme configuration and selected
+text/background contrast ratios.
+
+### Android deep links
+
+The Android manifest registers the custom URL scheme:
+
+`ronditrack://app`
+
+Example destinations:
+
+| Destination | URL |
+|---|---|
+| Bitcube details | `ronditrack://app/stokvels/bitcube-001` |
+| Bitcube current cycle | `ronditrack://app/stokvels/bitcube-001/cycles/cycle-001` |
+| Invitation | `ronditrack://app/join/ABC123` |
+
+Android configuration is included in:
+
+`android/app/src/main/AndroidManifest.xml`
+
+**Verification limitation:** Android runtime deep-link navigation
+has not been verified on the emulator. The initial Android build
+was blocked by local Gradle/NDK setup delays.
+
+The Android configuration evidence is stored in:
+
+`evidence/android-deep-link-evidence.txt`
+
+The custom scheme is intended for development testing.
+Verified HTTPS Android App Links are not configured.
+
+### Build flavors
+
+Android build flavors are configured in
+`android/app/build.gradle.kts`.
+
+| Flavor | Application ID |
+|---|---|
+| dev | `za.co.maja.ronditrack.dev` |
+| staging | `za.co.maja.ronditrack.staging` |
+| prod | `za.co.maja.ronditrack` |
