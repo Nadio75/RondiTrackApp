@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/money/cents.dart';
 import '../../session/presentation/session_provider.dart';
-import '../../stokvel/presentation/stokvel_details_screen.dart';
+import '../../../app/router/app_routes.dart';
 import '../domain/home_summaries_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -62,13 +62,7 @@ class HomeScreen extends ConsumerWidget {
                       clipBehavior: Clip.antiAlias,
                       child: InkWell(
                         onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => StokvelDetailsScreen(
-                                stokvelId: summary.stokvel.id,
-                              ),
-                            ),
-                          );
+                          StokvelRoute(id: summary.stokvel.id).push(context);
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(20),

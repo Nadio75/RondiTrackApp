@@ -8,6 +8,20 @@ import 'package:ronditrack/features/stokvel/domain/stokvel_models.dart';
 import 'package:ronditrack/features/stokvel/domain/stokvel_repository.dart';
 
 class RetryRepository implements StokvelRepository {
+  @override
+  Cycle? getActiveCycle({required String userId, required String stokvelId}) {
+    return null;
+  }
+
+  @override
+  Cycle? getCycle({
+    required String userId,
+    required String stokvelId,
+    required String cycleId,
+  }) {
+    return null;
+  }
+
   bool shouldFail = true;
 
   final StokvelRepository delegate = FakeStokvelRepository();

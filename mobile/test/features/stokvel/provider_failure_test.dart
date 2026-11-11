@@ -7,6 +7,20 @@ import 'package:ronditrack/features/stokvel/domain/stokvel_repository.dart';
 
 class FailingStokvelRepository implements StokvelRepository {
   @override
+  Cycle? getActiveCycle({required String userId, required String stokvelId}) {
+    return null;
+  }
+
+  @override
+  Cycle? getCycle({
+    required String userId,
+    required String stokvelId,
+    required String cycleId,
+  }) {
+    return null;
+  }
+
+  @override
   List<Stokvel> getStokvelsForUser(String userId) {
     throw Exception('Simulated network failure');
   }
@@ -21,6 +35,20 @@ class FailingStokvelRepository implements StokvelRepository {
 }
 
 class RecoveringStokvelRepository implements StokvelRepository {
+  @override
+  Cycle? getActiveCycle({required String userId, required String stokvelId}) {
+    return null;
+  }
+
+  @override
+  Cycle? getCycle({
+    required String userId,
+    required String stokvelId,
+    required String cycleId,
+  }) {
+    return null;
+  }
+
   bool shouldFail = true;
 
   final StokvelRepository delegate = FakeStokvelRepository();

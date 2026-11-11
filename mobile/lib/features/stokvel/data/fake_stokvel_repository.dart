@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/stokvel_models.dart';
 import '../domain/stokvel_repository.dart';
 import 'demo_stokvels.dart';
+import 'demo_cycles.dart';
 
 class FakeStokvelRepository implements StokvelRepository {
   @override
@@ -17,6 +18,36 @@ class FakeStokvelRepository implements StokvelRepository {
             memberships.any((membership) => membership.stokvelId == stokvel.id),
       ),
     );
+  }
+
+  @override
+  Cycle? getActiveCycle({required String userId, required String stokvelId}) {
+    if (getDetails(userId: userId, stokvelId: stokvelId) == null) {
+      return null;
+    }
+
+    return demoCycles
+        .where(
+          (cycle) =>
+              cycle.stokvelId == stokvelId &&
+              cycle.status == CycleStatus.active,
+        )
+        .firstOrNull;
+  }
+
+  @override
+  Cycle? getCycle({
+    required String userId,
+    required String stokvelId,
+    required String cycleId,
+  }) {
+    final details = getDetails(userId: userId, stokvelId: stokvelId);
+
+    if (details == null) return null;
+
+    return demoCycles
+        .where((cycle) => cycle.id == cycleId && cycle.stokvelId == stokvelId)
+        .firstOrNull;
   }
 
   @override

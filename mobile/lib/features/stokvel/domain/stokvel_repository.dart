@@ -22,4 +22,11 @@ abstract class StokvelRepository {
     required String userId,
     required String stokvelId,
   });
+
+  Cycle? getActiveCycle({required String userId, required String stokvelId});
+  Cycle? getCycle({
+    required String userId,
+    required String stokvelId,
+    required String cycleId,
+  });
 }
