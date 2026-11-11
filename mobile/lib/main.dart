@@ -17,7 +17,7 @@ void main() {
     runningOnWeb: kIsWeb,
   );
 
-  runApp(const ProviderScope(child: RondiTrackApp()));
+  runApp(const ProviderScope(child: RondiTrackApp())); //read up on this                                                                                                                                                              
 }
 
 class RondiTrackApp extends StatelessWidget {
