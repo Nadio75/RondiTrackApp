@@ -301,3 +301,71 @@ Android build flavors are configured in
 | dev | `za.co.maja.ronditrack.dev` |
 | staging | `za.co.maja.ronditrack.staging` |
 | prod | `za.co.maja.ronditrack` |
+
+
+## Assignment 10.3 - Foundations Capstone
+
+### Overview
+
+Assignment 10.3 extends RondiTrack with payout rotation
+functionality, session-aware state management, and a
+debug-only persona switcher.
+
+### Payout rotation
+
+The payout rotation feature displays:
+
+- The payout order for a stokvel contribution cycle.
+- Each recipient's name and position.
+- The payout amount.
+- The payout status.
+- The next scheduled recipient.
+
+Payout rotation data is represented using immutable domain
+models and accessed through a repository interface.
+
+The current implementation uses a fake payout repository
+with demonstration data.
+
+### Session-aware state management
+
+Riverpod manages asynchronous payout loading.
+
+The payout provider watches the active user session and
+refreshes when the session changes.
+
+Users must be authenticated and have access to the
+selected stokvel cycle to view its payout information.
+
+The interface supports loading, empty, error, and
+successful data states.
+
+### Development persona switcher
+
+The Profile screen includes a debug-only persona switcher.
+
+Available demonstration personas:
+
+| Persona | Email | Role |
+|---|---|---|
+| Lerato | lerato@example.com | Treasurer |
+| Thabo | thabo@example.com | Member |
+| Naledi | naledi@example.com | Non-member |
+
+The shared demonstration password is:
+
+`testpassword123`
+
+The persona switcher is guarded by `kDebugMode` and is
+not intended for release builds.
+
+### Running the application
+
+From the `mobile` directory, run:
+
+```powershell
+flutter pub get
+
+flutter run -d chrome `
+  --dart-define=APP_FLAVOR=dev `
+  --dart-define=API_BASE_URL=http://localhost:8080

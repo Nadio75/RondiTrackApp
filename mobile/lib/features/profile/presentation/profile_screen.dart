@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,6 +25,51 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(user?.email ?? '', textAlign: TextAlign.center),
+          if (kDebugMode) ...[
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 12),
+            Text(
+              'Development personas',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Switch demo accounts to verify role-based access. '
+              'Available in debug builds only.',
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton(
+                  onPressed: () {
+                    ref
+                        .read(sessionProvider.notifier)
+                        .login('lerato@example.com', 'testpassword123');
+                  },
+                  child: const Text('Lerato - Treasurer'),
+                ),
+                OutlinedButton(
+                  onPressed: () {
+                    ref
+                        .read(sessionProvider.notifier)
+                        .login('thabo@example.com', 'testpassword123');
+                  },
+                  child: const Text('Thabo - Member'),
+                ),
+                OutlinedButton(
+                  onPressed: () {
+                    ref
+                        .read(sessionProvider.notifier)
+                        .login('naledi@example.com', 'testpassword123');
+                  },
+                  child: const Text('Naledi - Non-member'),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {

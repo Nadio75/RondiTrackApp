@@ -14,6 +14,7 @@ import '../../features/stokvel/presentation/expanded_stokvel_layout.dart';
 import '../../features/invitations/presentation/join_invitation_screen.dart';
 
 import '../../features/cycles/presentation/cycle_details_screen.dart';
+import '../../features/stokvel/presentation/payout_rotation_screen.dart';
 
 part 'app_routes.g.dart';
 
@@ -51,7 +52,14 @@ class JoinInvitationRoute extends GoRouteData with $JoinInvitationRoute {
           routes: [
             TypedGoRoute<StokvelRoute>(
               path: ':id',
-              routes: [TypedGoRoute<CycleRoute>(path: 'cycles/:cycleId')],
+              routes: [
+                TypedGoRoute<CycleRoute>(
+                  path: 'cycles/:cycleId',
+                  routes: [
+                    TypedGoRoute<PayoutRotationRoute>(path: 'payout-rotation'),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
@@ -140,6 +148,18 @@ class CycleRoute extends GoRouteData with $CycleRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return CycleDetailsScreen(stokvelId: id, cycleId: cycleId);
+  }
+}
+
+class PayoutRotationRoute extends GoRouteData with $PayoutRotationRoute {
+  const PayoutRotationRoute({required this.id, required this.cycleId});
+
+  final String id;
+  final String cycleId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return PayoutRotationScreen(stokvelId: id, cycleId: cycleId);
   }
 }
 
