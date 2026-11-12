@@ -200,4 +200,63 @@ void main() {
       isA<PayoutData>(),
     );
   });
+
+  test(
+    'switching to nonmember during loading never exposes payout data',
+    () async {
+      final container = ProviderContainer.test();
+      final session = container.read(sessionProvider.notifier);
+      final provider = payoutRotationProvider(bitcubeKey);
+
+      expect(session.login('lerato@example.com', demoPassword), isTrue);
+
+      final states = <AsyncValue<PayoutRotation?>>[];
+
+      final subscription = container.listen(
+        provider,
+        (_, next) => states.add(next),
+        fireImmediately: true,
+      );
+      addTearDown(subscription.close);
+
+      expect(
+        payoutViewStateFromAsync(container.read(provider)),
+        isA<PayoutLoading>(),
+      );
+
+      // Change accounts before the simulated 400ms request finishes.
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      expect(session.login('naledi@example.com', demoPassword), isTrue);
+
+      // Let Riverpod process the session change and complete the new request.
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      final outsiderResult = await container.read(provider.future);
+
+      expect(outsiderResult, isNull);
+      expect(
+        payoutViewStateFromAsync(container.read(provider)),
+        isA<PayoutEmpty>(),
+      );
+
+      // Allow the original request enough time to finish as well.
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+
+      expect(container.read(sessionProvider)?.email, 'naledi@example.com');
+      expect(container.read(provider).value, isNull);
+      expect(
+        payoutViewStateFromAsync(container.read(provider)),
+        isA<PayoutEmpty>(),
+      );
+
+      // No payout data should have been emitted after switching accounts.
+      expect(
+        states.where(
+          (state) => state is AsyncData<PayoutRotation?> && state.value != null,
+        ),
+        isEmpty,
+      );
+    },
+  );
 }
