@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router/app_routes.dart';
 import '../../session/presentation/session_provider.dart';
 import '../../stokvel/data/fake_stokvel_repository.dart';
 import '../../stokvel/domain/stokvel_models.dart';
@@ -117,8 +118,19 @@ class CycleDetailsScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 12),
                           const Text(
-                            'Payout date and recipient have not '
-                            'been provided for this cycle.',
+                            'View the assigned recipient order and '
+                            'the next payout for this cycle.',
+                          ),
+                          const SizedBox(height: 16),
+                          FilledButton.icon(
+                            onPressed: () {
+                              PayoutRotationRoute(
+                                id: stokvelId,
+                                cycleId: cycleId,
+                              ).go(context);
+                            },
+                            icon: const Icon(Icons.list_alt),
+                            label: const Text('View payout rotation'),
                           ),
                         ],
                       ),

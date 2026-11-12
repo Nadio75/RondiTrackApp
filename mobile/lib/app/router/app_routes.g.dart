@@ -97,6 +97,13 @@ RouteBase get $rondiShellRoute => StatefulShellRouteData.$route(
                   path: 'cycles/:cycleId',
                   hasOverriddenOnExit: false,
                   factory: $CycleRoute._fromState,
+                  routes: [
+                    GoRouteData.$route(
+                      path: 'payout-rotation',
+                      hasOverriddenOnExit: false,
+                      factory: $PayoutRotationRoute._fromState,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -205,6 +212,34 @@ mixin $CycleRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
     '/stokvels/${Uri.encodeComponent(_self.id)}/cycles/${Uri.encodeComponent(_self.cycleId)}',
+  );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $PayoutRotationRoute on GoRouteData {
+  static PayoutRotationRoute _fromState(GoRouterState state) =>
+      PayoutRotationRoute(
+        id: state.pathParameters['id']!,
+        cycleId: state.pathParameters['cycleId']!,
+      );
+
+  PayoutRotationRoute get _self => this as PayoutRotationRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/stokvels/${Uri.encodeComponent(_self.id)}/cycles/${Uri.encodeComponent(_self.cycleId)}/payout-rotation',
   );
 
   @override

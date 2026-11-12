@@ -44,6 +44,15 @@ bool _isSafeDestination(String location) {
     return true;
   }
 
+  if (segments.length == 5 &&
+      segments[0] == 'stokvels' &&
+      segments[1].isNotEmpty &&
+      segments[2] == 'cycles' &&
+      segments[3].isNotEmpty &&
+      segments[4] == 'payout-rotation') {
+    return true;
+  }
+
   return false;
 }
 
