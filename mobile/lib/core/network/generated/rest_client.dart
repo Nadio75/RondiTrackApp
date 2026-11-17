@@ -1,0 +1,48 @@
+// coverage:ignore-file
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, unused_import, invalid_annotation_target, unnecessary_import
+
+import 'package:dio/dio.dart';
+
+import 'activity/activity_client.dart';
+import 'auth/auth_client.dart';
+import 'contribution_cycles/contribution_cycles_client.dart';
+import 'me/me_client.dart';
+import 'stokvel_contribution_history/stokvel_contribution_history_client.dart';
+import 'stokvels/stokvels_client.dart';
+
+/// RondiTrack | v1 `v1.0.0`
+class RestClient {
+  RestClient(Dio dio, {String? baseUrl}) : _dio = dio, _baseUrl = baseUrl;
+
+  final Dio _dio;
+  final String? _baseUrl;
+
+  static String get version => '1.0.0';
+
+  ActivityClient? _activity;
+  AuthClient? _auth;
+  ContributionCyclesClient? _contributionCycles;
+  MeClient? _me;
+  StokvelContributionHistoryClient? _stokvelContributionHistory;
+  StokvelsClient? _stokvels;
+
+  ActivityClient get activity =>
+      _activity ??= ActivityClient(_dio, baseUrl: _baseUrl);
+
+  AuthClient get auth => _auth ??= AuthClient(_dio, baseUrl: _baseUrl);
+
+  ContributionCyclesClient get contributionCycles =>
+      _contributionCycles ??= ContributionCyclesClient(_dio, baseUrl: _baseUrl);
+
+  MeClient get me => _me ??= MeClient(_dio, baseUrl: _baseUrl);
+
+  StokvelContributionHistoryClient get stokvelContributionHistory =>
+      _stokvelContributionHistory ??= StokvelContributionHistoryClient(
+        _dio,
+        baseUrl: _baseUrl,
+      );
+
+  StokvelsClient get stokvels =>
+      _stokvels ??= StokvelsClient(_dio, baseUrl: _baseUrl);
+}

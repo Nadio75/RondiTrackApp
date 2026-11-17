@@ -3,12 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ronditrack/features/profile/presentation/profile_screen.dart';
+import 'package:ronditrack/features/session/presentation/demo_persona_config.dart';
 import 'package:ronditrack/features/session/presentation/session_provider.dart';
 import 'package:ronditrack/features/stokvel/presentation/stokvel_details_provider.dart';
 
 void main() {
   testWidgets('debug persona switcher displays three accounts', (tester) async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [demoPersonasEnabledProvider.overrideWithValue(true)],
+    );
     addTearDown(container.dispose);
 
     expect(
@@ -32,7 +35,9 @@ void main() {
   });
 
   testWidgets('persona buttons change the active session', (tester) async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [demoPersonasEnabledProvider.overrideWithValue(true)],
+    );
     addTearDown(container.dispose);
 
     expect(
@@ -68,7 +73,9 @@ void main() {
   });
 
   test('switching personas respects Bitcube membership', () async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [demoPersonasEnabledProvider.overrideWithValue(true)],
+    );
     addTearDown(container.dispose);
 
     final session = container.read(sessionProvider.notifier);

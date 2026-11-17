@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../session/presentation/demo_persona_config.dart';
 import '../../session/presentation/session_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -25,7 +26,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(user?.email ?? '', textAlign: TextAlign.center),
-          if (kDebugMode) ...[
+          if (kDebugMode && ref.watch(demoPersonasEnabledProvider)) ...[
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 12),
@@ -73,7 +74,7 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {
-              ref.read(sessionProvider.notifier).logout();
+              ref.read(sessionProvider.notifier).logoutWithApi();
             },
             icon: const Icon(Icons.logout),
             label: const Text('Sign out'),

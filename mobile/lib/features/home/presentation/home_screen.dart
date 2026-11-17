@@ -26,7 +26,7 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             tooltip: 'Logout',
             onPressed: () {
-              ref.read(sessionProvider.notifier).logout();
+              ref.read(sessionProvider.notifier).logoutWithApi();
             },
             icon: const Icon(Icons.logout),
           ),

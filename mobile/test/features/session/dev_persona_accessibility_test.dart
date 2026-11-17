@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ronditrack/features/profile/presentation/profile_screen.dart';
+import 'package:ronditrack/features/session/presentation/demo_persona_config.dart';
 import 'package:ronditrack/features/session/presentation/session_provider.dart';
 
 void main() {
@@ -17,7 +18,9 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [demoPersonasEnabledProvider.overrideWithValue(true)],
+    );
     addTearDown(container.dispose);
 
     expect(

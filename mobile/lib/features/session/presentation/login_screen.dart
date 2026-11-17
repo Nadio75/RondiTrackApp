@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,6 +16,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final passwordController = TextEditingController();
 
   String? errorMessage;
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -23,15 +25,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void login() {
-    final success = ref
-        .read(sessionProvider.notifier)
-        .login(emailController.text, passwordController.text);
+  Future<void> login() async {
+    if (isLoading) return;
 
-    if (!success) {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      await ref
+          .read(sessionProvider.notifier)
+          .loginWithApi(emailController.text.trim(), passwordController.text);
+    } on DioException catch (error) {
+      if (!mounted) return;
+
+      final status = error.response?.statusCode;
+
       setState(() {
-        errorMessage = 'Invalid email or password';
+        if (status == 400 || status == 401) {
+          errorMessage = 'Invalid email or password';
+        } else if (status == 429) {
+          errorMessage = 'Too many attempts. Please try again later.';
+        } else {
+          errorMessage = 'Unable to sign in. Check your connection and retry.';
+        }
       });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        errorMessage = 'Unable to sign in. Please try again.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -61,6 +92,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 32),
                 TextField(
                   controller: emailController,
+                  enabled: !isLoading,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
@@ -69,12 +102,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: passwordController,
+                  enabled: !isLoading,
                   obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
                   ),
-                  onSubmitted: (_) => login(),
+                  onSubmitted: (_) {
+                    if (!isLoading) login();
+                  },
                 ),
                 if (errorMessage != null) ...[
                   const SizedBox(height: 12),
@@ -87,8 +123,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: login,
-                    child: const Text('Login'),
+                    onPressed: isLoading ? null : login,
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Login'),
                   ),
                 ),
               ],

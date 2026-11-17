@@ -219,7 +219,7 @@ return $default(_that.memberId,_that.memberName,_that.position,_that.amountCents
 
 class _PayoutRotationEntry implements PayoutRotationEntry {
   const _PayoutRotationEntry({required this.memberId, required this.memberName, required this.position, required this.amountCents, required this.scheduledDate, required this.status, required this.isNext});
-
+  
 
 @override final  String memberId;
 @override final  String memberName;
@@ -497,7 +497,7 @@ return $default(_that.stokvelId,_that.cycleId,_that.entries);case _:
 
 class _PayoutRotation implements PayoutRotation {
   const _PayoutRotation({required this.stokvelId, required this.cycleId, required  List<PayoutRotationEntry> entries}): _entries = entries;
-
+  
 
 @override final  String stokvelId;
 @override final  String cycleId;
