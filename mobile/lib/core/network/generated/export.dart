@@ -30,4 +30,3 @@ export 'models/stokvel_response.dart';
 export 'models/update_payout_request.dart';
 // Root client
 export 'rest_client.dart';
-

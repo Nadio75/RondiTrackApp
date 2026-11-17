@@ -8,12 +8,11 @@ part 'add_member_request.g.dart';
 
 @JsonSerializable()
 class AddMemberRequest {
-  const AddMemberRequest({
-    required this.userId,
-  });
-  
-  factory AddMemberRequest.fromJson(Map<String, Object?> json) => _$AddMemberRequestFromJson(json);
-  
+  const AddMemberRequest({required this.userId});
+
+  factory AddMemberRequest.fromJson(Map<String, Object?> json) =>
+      _$AddMemberRequestFromJson(json);
+
   final String userId;
 
   Map<String, Object?> toJson() => _$AddMemberRequestToJson(this);

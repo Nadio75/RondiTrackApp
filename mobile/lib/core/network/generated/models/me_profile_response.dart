@@ -13,9 +13,10 @@ class MeProfileResponse {
     required this.name,
     required this.email,
   });
-  
-  factory MeProfileResponse.fromJson(Map<String, Object?> json) => _$MeProfileResponseFromJson(json);
-  
+
+  factory MeProfileResponse.fromJson(Map<String, Object?> json) =>
+      _$MeProfileResponseFromJson(json);
+
   final String id;
   final String name;
   final String email;

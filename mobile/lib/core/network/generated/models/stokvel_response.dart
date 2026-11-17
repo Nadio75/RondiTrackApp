@@ -14,9 +14,10 @@ class StokvelResponse {
     required this.contributionAmount,
     required this.memberCount,
   });
-  
-  factory StokvelResponse.fromJson(Map<String, Object?> json) => _$StokvelResponseFromJson(json);
-  
+
+  factory StokvelResponse.fromJson(Map<String, Object?> json) =>
+      _$StokvelResponseFromJson(json);
+
   final String id;
   final String name;
   final double contributionAmount;

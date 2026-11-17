@@ -19,9 +19,10 @@ class HomeCycleResponse {
     this.owedCents,
     this.dueAtUtc,
   });
-  
-  factory HomeCycleResponse.fromJson(Map<String, Object?> json) => _$HomeCycleResponseFromJson(json);
-  
+
+  factory HomeCycleResponse.fromJson(Map<String, Object?> json) =>
+      _$HomeCycleResponseFromJson(json);
+
   final String cycleId;
   final String period;
   final String status;

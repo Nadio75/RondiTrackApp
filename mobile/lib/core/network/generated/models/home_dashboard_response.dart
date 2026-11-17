@@ -10,12 +10,11 @@ part 'home_dashboard_response.g.dart';
 
 @JsonSerializable()
 class HomeDashboardResponse {
-  const HomeDashboardResponse({
-    required this.stokvels,
-  });
-  
-  factory HomeDashboardResponse.fromJson(Map<String, Object?> json) => _$HomeDashboardResponseFromJson(json);
-  
+  const HomeDashboardResponse({required this.stokvels});
+
+  factory HomeDashboardResponse.fromJson(Map<String, Object?> json) =>
+      _$HomeDashboardResponseFromJson(json);
+
   final List<HomeStokvelResponse> stokvels;
 
   Map<String, Object?> toJson() => _$HomeDashboardResponseToJson(this);

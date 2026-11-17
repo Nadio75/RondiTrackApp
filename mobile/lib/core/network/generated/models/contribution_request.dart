@@ -13,9 +13,10 @@ class ContributionRequest {
     required this.amount,
     required this.contributionCycleId,
   });
-  
-  factory ContributionRequest.fromJson(Map<String, Object?> json) => _$ContributionRequestFromJson(json);
-  
+
+  factory ContributionRequest.fromJson(Map<String, Object?> json) =>
+      _$ContributionRequestFromJson(json);
+
   final String userId;
   final double amount;
   final String contributionCycleId;

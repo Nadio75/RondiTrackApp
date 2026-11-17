@@ -16,9 +16,10 @@ class ContributionResponse {
     required this.contributionCycleId,
     required this.createdAt,
   });
-  
-  factory ContributionResponse.fromJson(Map<String, Object?> json) => _$ContributionResponseFromJson(json);
-  
+
+  factory ContributionResponse.fromJson(Map<String, Object?> json) =>
+      _$ContributionResponseFromJson(json);
+
   final String id;
   final String stokvelId;
   final String userId;

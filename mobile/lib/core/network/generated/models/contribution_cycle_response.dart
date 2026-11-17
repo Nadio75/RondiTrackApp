@@ -21,9 +21,10 @@ class ContributionCycleResponse {
     this.totalCollectedCents,
     this.amountDueCents,
   });
-  
-  factory ContributionCycleResponse.fromJson(Map<String, Object?> json) => _$ContributionCycleResponseFromJson(json);
-  
+
+  factory ContributionCycleResponse.fromJson(Map<String, Object?> json) =>
+      _$ContributionCycleResponseFromJson(json);
+
   final String id;
   final String stokvelId;
   final String period;

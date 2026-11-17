@@ -14,9 +14,10 @@ class PagedResponseOfMemberListItem {
     required this.items,
     required this.nextPageToken,
   });
-  
-  factory PagedResponseOfMemberListItem.fromJson(Map<String, Object?> json) => _$PagedResponseOfMemberListItemFromJson(json);
-  
+
+  factory PagedResponseOfMemberListItem.fromJson(Map<String, Object?> json) =>
+      _$PagedResponseOfMemberListItemFromJson(json);
+
   final List<MemberListItem> items;
   final String? nextPageToken;
 

@@ -17,9 +17,10 @@ class PayoutRotationEntryResponse {
     required this.status,
     required this.isNext,
   });
-  
-  factory PayoutRotationEntryResponse.fromJson(Map<String, Object?> json) => _$PayoutRotationEntryResponseFromJson(json);
-  
+
+  factory PayoutRotationEntryResponse.fromJson(Map<String, Object?> json) =>
+      _$PayoutRotationEntryResponseFromJson(json);
+
   final String memberId;
   final String memberName;
   final dynamic position;

@@ -15,9 +15,10 @@ class PayoutRotationResponse {
     required this.cycleId,
     required this.entries,
   });
-  
-  factory PayoutRotationResponse.fromJson(Map<String, Object?> json) => _$PayoutRotationResponseFromJson(json);
-  
+
+  factory PayoutRotationResponse.fromJson(Map<String, Object?> json) =>
+      _$PayoutRotationResponseFromJson(json);
+
   final String stokvelId;
   final String cycleId;
   final List<PayoutRotationEntryResponse> entries;

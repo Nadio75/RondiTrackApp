@@ -13,9 +13,10 @@ class CreateStokvelRequest {
     required this.contributionAmount,
     this.rules,
   });
-  
-  factory CreateStokvelRequest.fromJson(Map<String, Object?> json) => _$CreateStokvelRequestFromJson(json);
-  
+
+  factory CreateStokvelRequest.fromJson(Map<String, Object?> json) =>
+      _$CreateStokvelRequestFromJson(json);
+
   final String name;
   final double contributionAmount;
   final String? rules;

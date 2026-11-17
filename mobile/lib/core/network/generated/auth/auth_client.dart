@@ -14,9 +14,7 @@ abstract class AuthClient {
   factory AuthClient(Dio dio, {String? baseUrl}) = _AuthClient;
 
   @POST('/api/v1/auth/login')
-  Future<void> postApiV1AuthLogin({
-    @Body() required LoginRequest body,
-  });
+  Future<void> postApiV1AuthLogin({@Body() required LoginRequest body});
 
   @POST('/api/v1/auth/refresh')
   Future<void> postApiV1AuthRefresh();

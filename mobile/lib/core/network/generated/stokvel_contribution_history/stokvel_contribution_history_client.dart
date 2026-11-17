@@ -9,7 +9,8 @@ part 'stokvel_contribution_history_client.g.dart';
 
 @RestApi()
 abstract class StokvelContributionHistoryClient {
-  factory StokvelContributionHistoryClient(Dio dio, {String? baseUrl}) = _StokvelContributionHistoryClient;
+  factory StokvelContributionHistoryClient(Dio dio, {String? baseUrl}) =
+      _StokvelContributionHistoryClient;
 
   @GET('/api/v1/stokvels/{id}/contributions')
   Future<void> getApiV1StokvelsIdContributions({

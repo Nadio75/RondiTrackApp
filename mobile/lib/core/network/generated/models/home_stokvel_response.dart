@@ -19,9 +19,10 @@ class HomeStokvelResponse {
     this.contributionAmountCents,
     this.personalArrearsCents,
   });
-  
-  factory HomeStokvelResponse.fromJson(Map<String, Object?> json) => _$HomeStokvelResponseFromJson(json);
-  
+
+  factory HomeStokvelResponse.fromJson(Map<String, Object?> json) =>
+      _$HomeStokvelResponseFromJson(json);
+
   final String stokvelId;
   final String name;
   final String role;

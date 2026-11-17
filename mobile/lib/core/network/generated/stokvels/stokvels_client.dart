@@ -147,9 +147,7 @@ abstract class StokvelsClient {
   ///       "memberCount": 2.
   ///     }.
   @GET('/api/v1/stokvels/{id}')
-  Future<StokvelResponse> getApiV1StokvelsId({
-    @Path('id') required String id,
-  });
+  Future<StokvelResponse> getApiV1StokvelsId({@Path('id') required String id});
 
   /// Replace a stokvel's name and contribution amount.
   ///
@@ -189,9 +187,7 @@ abstract class StokvelsClient {
   /// **Errors:** `400` if `id` is not a valid GUID; `404` if no stokvel has that id (so deleting the.
   /// same stokvel twice gives `204` and then `404`).
   @DELETE('/api/v1/stokvels/{id}')
-  Future<void> deleteApiV1StokvelsId({
-    @Path('id') required String id,
-  });
+  Future<void> deleteApiV1StokvelsId({@Path('id') required String id});
 
   /// List members of a stokvel (paged).
   ///

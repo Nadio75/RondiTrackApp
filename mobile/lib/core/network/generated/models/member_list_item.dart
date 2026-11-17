@@ -14,9 +14,10 @@ class MemberListItem {
     required this.role,
     required this.joinedAtUtc,
   });
-  
-  factory MemberListItem.fromJson(Map<String, Object?> json) => _$MemberListItemFromJson(json);
-  
+
+  factory MemberListItem.fromJson(Map<String, Object?> json) =>
+      _$MemberListItemFromJson(json);
+
   final String userId;
   final String name;
   final String role;
