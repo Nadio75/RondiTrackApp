@@ -34,9 +34,9 @@ final apiNetworkSessionProvider = Provider<ApiNetworkSession>((ref) {
     ),
   );
 
-  platform_adapter.configureHttpAdapter(dio);
+  final prepareNativeLogout = platform_adapter.configureHttpAdapter(dio);
 
-  final auth = ApiAuthClient(dio);
+  final auth = ApiAuthClient(dio, prepareNativeLogout: prepareNativeLogout);
 
   dio.interceptors.add(AuthInterceptor(auth));
   dio.interceptors.add(AuthRecoveryInterceptor(dio, auth));

@@ -1,11 +1,14 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 
 /// Authentication responses are handled manually because the
 /// current OpenAPI snapshot does not declare their response schemas.
 class ApiAuthClient {
-  ApiAuthClient(this._dio);
+  ApiAuthClient(this._dio, {this._prepareNativeLogout});
 
   final Dio _dio;
+  final Future<String?> Function()? _prepareNativeLogout;
 
   String? _accessToken;
   Future<void>? _refreshInFlight;
@@ -59,8 +62,9 @@ class ApiAuthClient {
       if (generation != _sessionGeneration) return;
 
       _acceptToken(response.data);
-    } catch (_) {
-      if (generation == _sessionGeneration) {
+    } on DioException catch (error) {
+      if (generation == _sessionGeneration &&
+          error.response?.statusCode == 401) {
         _accessToken = null;
       }
       rethrow;
@@ -71,7 +75,29 @@ class ApiAuthClient {
     ++_sessionGeneration;
     _accessToken = null;
 
-    await _dio.post<void>('/api/v1/auth/logout');
+    String? nativeRefreshToken;
+
+    // Clear native credentials before attempting remote revocation.
+    if (_prepareNativeLogout != null) {
+      nativeRefreshToken = await _prepareNativeLogout();
+    }
+
+    try {
+      await _dio
+          .post<void>(
+            '/api/v1/auth/logout',
+            options: Options(
+              extra: {'nativeLogoutToken': ?nativeRefreshToken},
+              sendTimeout: const Duration(seconds: 3),
+              receiveTimeout: const Duration(seconds: 3),
+            ),
+          )
+          .timeout(const Duration(seconds: 3));
+    } on DioException {
+      // Local logout remains effective if remote revocation fails.
+    } on TimeoutException {
+      // Local logout remains effective if the server is unavailable.
+    }
   }
 
   void _acceptToken(Map<String, dynamic>? body) {

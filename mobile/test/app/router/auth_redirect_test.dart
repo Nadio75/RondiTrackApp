@@ -2,6 +2,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ronditrack/app/router/auth_redirect.dart';
 
 void main() {
+  test('restoring session preserves protected destination', () {
+    expect(
+      authRedirect(signedIn: false, location: '/join/ABC123', restoring: true),
+      isNull,
+    );
+
+    expect(
+      authRedirect(signedIn: false, location: '/stokvels/123', restoring: true),
+      isNull,
+    );
+  });
+
   group('Authentication redirects', () {
     test('Signed-out Home redirects to Sign In', () {
       expect(

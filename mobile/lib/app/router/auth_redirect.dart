@@ -56,7 +56,12 @@ bool _isSafeDestination(String location) {
   return false;
 }
 
-String? authRedirect({required bool signedIn, required String location}) {
+String? authRedirect({
+  required bool signedIn,
+  required String location,
+  bool restoring = false,
+}) {
+  if (restoring) return null;
   final uri = Uri.tryParse(location);
 
   if (uri == null) {
