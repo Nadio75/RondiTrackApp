@@ -11,6 +11,7 @@ import 'package:ronditrack/features/session/data/demo_users.dart';
 import 'package:ronditrack/features/session/presentation/session_lifecycle.dart';
 import 'package:ronditrack/features/session/presentation/session_lifecycle_provider.dart';
 import 'package:ronditrack/features/session/presentation/session_provider.dart';
+import 'package:ronditrack/features/session/presentation/session_origin_provider.dart';
 
 class ControlledSessionService extends ApiSessionService {
   ControlledSessionService() : super(auth: ApiAuthClient(Dio()), dio: Dio());
@@ -48,6 +49,7 @@ void main() {
     await restoring;
 
     expect(container.read(sessionProvider), isNull);
+    expect(container.read(sessionOriginProvider), SessionOrigin.none);
     expect(
       container.read(sessionLifecycleProvider),
       SessionLifecycle.retryRequired,
@@ -82,6 +84,7 @@ void main() {
     await restoring;
 
     expect(container.read(sessionProvider)?.id, 'restored-user');
+    expect(container.read(sessionOriginProvider), SessionOrigin.api);
     expect(container.read(sessionLifecycleProvider), SessionLifecycle.signedIn);
   });
 
@@ -110,6 +113,7 @@ void main() {
     await restoring;
 
     expect(container.read(sessionProvider), isNull);
+    expect(container.read(sessionOriginProvider), SessionOrigin.none);
     expect(
       container.read(sessionLifecycleProvider),
       SessionLifecycle.signedOut,

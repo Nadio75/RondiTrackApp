@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/money/cents.dart';
 import '../../session/presentation/session_provider.dart';
+import '../../session/presentation/session_origin_provider.dart';
+import 'api_home_view.dart';
 import '../../../app/router/app_routes.dart';
 import '../domain/home_summaries_provider.dart';
 
@@ -12,9 +14,28 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(sessionProvider);
+    final origin = ref.watch(sessionOriginProvider);
 
     if (user == null) {
       return const Scaffold(body: Center(child: Text('Please sign in')));
+    }
+
+    if (origin == SessionOrigin.api) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('RondiTrack'),
+          actions: [
+            IconButton(
+              tooltip: 'Logout',
+              onPressed: () {
+                ref.read(sessionProvider.notifier).logoutWithApi();
+              },
+              icon: const Icon(Icons.logout),
+            ),
+          ],
+        ),
+        body: const ApiHomeView(),
+      );
     }
 
     final summariesAsync = ref.watch(homeSummariesProvider(user.id));

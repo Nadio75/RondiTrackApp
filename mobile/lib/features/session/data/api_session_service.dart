@@ -15,6 +15,7 @@ class ApiSessionService {
     required String password,
   }) async {
     await _auth.login(email: email, password: password);
+    final loginGeneration = _auth.sessionGeneration;
 
     try {
       final response = await _dio.get<Map<String, dynamic>>('/api/v1/me');
@@ -35,7 +36,7 @@ class ApiSessionService {
     } catch (_) {
       // Do not retain a signed-in session when profile loading fails.
       try {
-        await _auth.logout();
+        await _auth.logoutIfGenerationMatches(loginGeneration);
       } catch (_) {
         // Local access-token invalidation occurs before the logout request.
       }
