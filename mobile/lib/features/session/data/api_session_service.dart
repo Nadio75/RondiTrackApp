@@ -43,5 +43,33 @@ class ApiSessionService {
     }
   }
 
+  /// Restores an existing session using its refresh credential.
+  ///
+  /// Throws when the refresh credential is invalid or the network
+  /// is unavailable. The caller decides whether to sign out or retry.
+  Future<DemoUser> restore() async {
+    await _auth.refresh();
+
+    if (!_auth.isAuthenticated) {
+      throw const FormatException('No active session to restore');
+    }
+
+    final response = await _dio.get<Map<String, dynamic>>('/api/v1/me');
+    final body = response.data;
+
+    if (body == null ||
+        body['id'] is! String ||
+        body['name'] is! String ||
+        body['email'] is! String) {
+      throw const FormatException('Invalid profile response');
+    }
+
+    return DemoUser(
+      id: body['id'] as String,
+      name: body['name'] as String,
+      email: body['email'] as String,
+    );
+  }
+
   Future<void> logout() => _auth.logout();
 }

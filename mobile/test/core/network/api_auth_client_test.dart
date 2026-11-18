@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ronditrack/core/network/api_auth_client.dart';
+import 'package:ronditrack/core/auth/refresh_token_store.dart';
+import 'package:ronditrack/core/network/native_refresh_cookie_interceptor.dart';
 
 class FakeAuthAdapter implements HttpClientAdapter {
   FakeAuthAdapter({this.validResponse = true});
@@ -106,7 +108,241 @@ class ControlledRefreshAdapter implements HttpClientAdapter {
   }
 }
 
+class OfflineLogoutAdapter implements HttpClientAdapter {
+  @override
+  void close({bool force = false}) {}
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    if (options.path.endsWith('/logout')) {
+      throw DioException(
+        requestOptions: options,
+        type: DioExceptionType.connectionError,
+        error: 'Simulated offline connection',
+      );
+    }
+
+    return ResponseBody.fromString(
+      jsonEncode({
+        'accessToken': 'active-token',
+        'tokenType': 'Bearer',
+        'expiresIn': 900,
+      }),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
+  }
+}
+
+class LogoutVerificationAdapter implements HttpClientAdapter {
+  LogoutVerificationAdapter(this.store);
+
+  final RefreshTokenStore store;
+
+  bool storageWasEmptyAtLogout = false;
+  String? receivedCookie;
+
+  @override
+  void close({bool force = false}) {}
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    if (options.uri.path == '/api/v1/auth/logout') {
+      storageWasEmptyAtLogout = await store.read() == null;
+      receivedCookie = options.headers['Cookie']?.toString();
+
+      return ResponseBody.fromString('', 204);
+    }
+
+    return ResponseBody.fromString(
+      jsonEncode({
+        'accessToken': 'initial-token',
+        'tokenType': 'Bearer',
+        'expiresIn': 900,
+      }),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
+  }
+}
+
+class ServerErrorRefreshAdapter implements HttpClientAdapter {
+  ServerErrorRefreshAdapter({this.refreshStatus = 500});
+
+  final int? refreshStatus;
+  @override
+  void close({bool force = false}) {}
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    if (options.uri.path == '/api/v1/auth/refresh') {
+      if (refreshStatus == null) {
+        throw DioException(
+          requestOptions: options,
+          type: DioExceptionType.connectionError,
+          error: 'Simulated offline connection',
+        );
+      }
+
+      return ResponseBody.fromString(
+        '{"error":"Temporary server failure"}',
+        refreshStatus!,
+        headers: {
+          Headers.contentTypeHeader: ['application/json'],
+        },
+      );
+    }
+
+    return ResponseBody.fromString(
+      jsonEncode({
+        'accessToken': 'existing-access-token',
+        'tokenType': 'Bearer',
+        'expiresIn': 900,
+      }),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
+  }
+}
+
 void main() {
+  for (final status in <int?>[403, 429, null]) {
+    test('refresh failure $status preserves existing access token', () async {
+      final dio = Dio(BaseOptions(baseUrl: 'https://localhost:7051'))
+        ..httpClientAdapter = ServerErrorRefreshAdapter(refreshStatus: status);
+
+      final auth = ApiAuthClient(dio);
+
+      try {
+        await auth.login(
+          email: 'test@example.com',
+          password: 'example-password',
+        );
+
+        expect(auth.accessToken, 'existing-access-token');
+
+        await expectLater(
+          auth.refresh(),
+          throwsA(
+            isA<DioException>().having(
+              (error) => error.response?.statusCode,
+              'status code',
+              status,
+            ),
+          ),
+        );
+
+        expect(auth.accessToken, 'existing-access-token');
+        expect(auth.isAuthenticated, isTrue);
+      } finally {
+        dio.close(force: true);
+      }
+    });
+  }
+
+  test('HTTP 500 refresh failure preserves existing access token', () async {
+    final dio = Dio(BaseOptions(baseUrl: 'https://localhost:7051'))
+      ..httpClientAdapter = ServerErrorRefreshAdapter();
+
+    final auth = ApiAuthClient(dio);
+
+    try {
+      await auth.login(email: 'test@example.com', password: 'example-password');
+
+      expect(auth.accessToken, 'existing-access-token');
+
+      await expectLater(
+        auth.refresh(),
+        throwsA(
+          isA<DioException>().having(
+            (error) => error.response?.statusCode,
+            'status code',
+            500,
+          ),
+        ),
+      );
+
+      expect(auth.accessToken, 'existing-access-token');
+      expect(auth.isAuthenticated, isTrue);
+    } finally {
+      dio.close(force: true);
+    }
+  });
+
+  test('ApiAuthClient clears native storage before backend logout', () async {
+    final store = MemoryRefreshTokenStore();
+    await store.write('credential-to-revoke');
+
+    final adapter = LogoutVerificationAdapter(store);
+
+    final dio = Dio(BaseOptions(baseUrl: 'https://localhost:7051'))
+      ..httpClientAdapter = adapter;
+
+    final interceptor = NativeRefreshCookieInterceptor(
+      store: store,
+      apiBaseUrl: 'https://localhost:7051',
+    );
+
+    dio.interceptors.add(interceptor);
+
+    final auth = ApiAuthClient(
+      dio,
+      prepareNativeLogout: interceptor.prepareLogout,
+    );
+
+    try {
+      await auth.login(email: 'test@example.com', password: 'example-password');
+
+      expect(auth.isAuthenticated, isTrue);
+
+      await auth.logout();
+
+      expect(adapter.storageWasEmptyAtLogout, isTrue);
+      expect(adapter.receivedCookie, 'ronditrack_refresh=credential-to-revoke');
+      expect(await store.read(), isNull);
+      expect(auth.accessToken, isNull);
+      expect(auth.isAuthenticated, isFalse);
+    } finally {
+      dio.close(force: true);
+    }
+  });
+
+  test('offline logout still clears the local access token', () async {
+    final dio = Dio(BaseOptions(baseUrl: 'http://localhost:5056'))
+      ..httpClientAdapter = OfflineLogoutAdapter();
+
+    final auth = ApiAuthClient(dio);
+
+    await auth.login(email: 'test@example.com', password: 'example-password');
+
+    expect(auth.isAuthenticated, isTrue);
+
+    await auth.logout();
+
+    expect(auth.accessToken, isNull);
+    expect(auth.isAuthenticated, isFalse);
+
+    dio.close(force: true);
+  });
+
   test('late refresh cannot restore logged-out session', () async {
     final adapter = ControlledRefreshAdapter();
 

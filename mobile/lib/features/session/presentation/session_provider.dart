@@ -1,7 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/api_session_provider.dart';
 import '../data/demo_users.dart';
+import 'session_lifecycle_provider.dart';
 
 class SessionNotifier extends Notifier<DemoUser?> {
   int _sessionGeneration = 0;
@@ -20,6 +22,7 @@ class SessionNotifier extends Notifier<DemoUser?> {
     ++_sessionGeneration;
 
     state = user;
+    ref.read(sessionLifecycleProvider.notifier).markSignedIn();
     return true;
   }
 
@@ -36,12 +39,49 @@ class SessionNotifier extends Notifier<DemoUser?> {
     }
 
     state = user;
+    ref.read(sessionLifecycleProvider.notifier).markSignedIn();
+  }
+
+  /// Attempts to restore an existing backend session.
+  ///
+  /// A generation check prevents a late response from restoring
+  /// a session after logout or another authentication operation.
+  Future<void> restoreWithApi() async {
+    final generation = ++_sessionGeneration;
+
+    ref.read(sessionLifecycleProvider.notifier).markRestoring();
+
+    final service = ref.read(apiSessionServiceProvider);
+
+    try {
+      final user = await service.restore();
+
+      if (generation != _sessionGeneration) return;
+
+      state = user;
+      ref.read(sessionLifecycleProvider.notifier).markSignedIn();
+    } on DioException catch (error) {
+      if (generation != _sessionGeneration) return;
+
+      if (error.response?.statusCode == 401 ||
+          error.response?.statusCode == 403) {
+        state = null;
+        ref.read(sessionLifecycleProvider.notifier).markSignedOut();
+      } else {
+        ref.read(sessionLifecycleProvider.notifier).markRetryRequired();
+      }
+    } catch (_) {
+      if (generation != _sessionGeneration) return;
+
+      ref.read(sessionLifecycleProvider.notifier).markRetryRequired();
+    }
   }
 
   void logout() {
     ++_sessionGeneration;
 
     state = null;
+    ref.read(sessionLifecycleProvider.notifier).markSignedOut();
   }
 
   /// Clears the UI session immediately, then revokes backend auth.
