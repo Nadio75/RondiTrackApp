@@ -71,6 +71,18 @@ class ApiAuthClient {
     }
   }
 
+  /// Only invalidates credentials belonging to the expected session.
+  ///
+  /// Returns false when another authentication operation has started.
+  Future<bool> logoutIfGenerationMatches(int expectedGeneration) async {
+    if (expectedGeneration != _sessionGeneration) {
+      return false;
+    }
+
+    await logout();
+    return true;
+  }
+
   Future<void> logout() async {
     ++_sessionGeneration;
     _accessToken = null;
