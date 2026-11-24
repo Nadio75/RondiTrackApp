@@ -545,3 +545,50 @@ completed during final Assignment 12.1 verification.
 
 Automated tests do not replace native screen-reader testing,
 human linguistic review or physical-device verification.
+
+
+## Assignment 12.1 - Unit Testing Results
+
+The regression suite contains 362 passing tests, compared with
+282 tests at the start of the assignment.
+
+| Test category | Tests |
+|---|---:|
+| Existing regression suite | 282 |
+| English and Sepedi localization | 30 |
+| Home and payout Mocktail tests | 13 |
+| Failure mapping matrix | 33 |
+| Populated Home Mocktail tests | 4 |
+| Total | 362 |
+
+Static analysis: no issues.
+
+### Dependency decisions
+
+- Mocktail 1.0.5 for repository interaction testing.
+- Alchemist 0.14.1 for golden testing.
+- Integration test package supplied by the Flutter SDK.
+- shared_preferences_android 2.5.4 retained in the lockfile
+  to satisfy the minimum dependency age requirement.
+- No permanent dependency override is required.
+
+### Verified notifier mutation
+
+The member ID filter in HomeSummariesNotifier was temporarily removed.
+
+Before mutation: four tests passed.
+During mutation: two passed and two failed.
+After restoration: four tests passed.
+
+The failing tests were:
+
+- Home uses own contribution status not another member status.
+- Missing own contribution does not expose another member status.
+
+Both failures demonstrated that the tests detect exposure of
+another member's contribution status.
+
+The original production code was restored and verified.
+
+Evidence is stored under submission_evidence in the
+RondiTrack_Assignment_12_1_Evidence/mutations directory.
