@@ -1,3 +1,6 @@
+import '../../../core/localization/localization_context.dart';
+import '../../../core/localization/localized_values.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,10 +17,11 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(sessionProvider);
+    final l10n = context.l10n;
     final origin = ref.watch(sessionOriginProvider);
 
     if (user == null) {
-      return const Scaffold(body: Center(child: Text('Please sign in')));
+      return Scaffold(body: Center(child: Text(l10n.pleaseSignIn)));
     }
 
     if (origin == SessionOrigin.api) {
@@ -26,7 +30,7 @@ class HomeScreen extends ConsumerWidget {
           title: const Text('RondiTrack'),
           actions: [
             IconButton(
-              tooltip: 'Logout',
+              tooltip: l10n.logout,
               onPressed: () {
                 ref.read(sessionProvider.notifier).logoutWithApi();
               },
@@ -45,7 +49,7 @@ class HomeScreen extends ConsumerWidget {
         title: const Text('RondiTrack'),
         actions: [
           IconButton(
-            tooltip: 'Logout',
+            tooltip: l10n.logout,
             onPressed: () {
               ref.read(sessionProvider.notifier).logoutWithApi();
             },
@@ -62,17 +66,17 @@ class HomeScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(20),
           children: [
             Text(
-              'Welcome, ${user.name}!',
+              l10n.welcome(user.name),
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),
-            const Text('Your stokvel overview'),
+            Text(l10n.stokvelOverview),
             const SizedBox(height: 24),
             switch (summariesAsync) {
-              AsyncData(:final value) when value.isEmpty => const Card(
+              AsyncData(:final value) when value.isEmpty => Card(
                 child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Text('You have not joined any stokvels yet.'),
+                  padding: const EdgeInsets.all(24),
+                  child: Text(l10n.noStokvels),
                 ),
               ),
               AsyncData(:final value) => Column(
@@ -100,15 +104,26 @@ class HomeScreen extends ConsumerWidget {
                               Text(summary.stokvel.description),
                               const SizedBox(height: 16),
                               Text(
-                                'Monthly contribution: '
-                                '${formatRands(summary.stokvel.monthlyContributionCents)}',
+                                l10n.monthlyContribution(
+                                  formatRands(
+                                    summary.stokvel.monthlyContributionCents,
+                                  ),
+                                ),
                               ),
                               const SizedBox(height: 8),
-                              Text('Role: ${summary.role.name}'),
+                              Text(
+                                l10n.roleLabel(
+                                  localizedRole(l10n, summary.role.name),
+                                ),
+                              ),
                               const SizedBox(height: 8),
                               Text(
-                                'Contribution status: '
-                                '${summary.contributionStatus?.name ?? "none"}',
+                                l10n.contributionStatus(
+                                  localizedContributionStatus(
+                                    l10n,
+                                    summary.contributionStatus?.name ?? "none",
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -124,13 +139,13 @@ class HomeScreen extends ConsumerWidget {
                     children: [
                       const Icon(Icons.error_outline, size: 40),
                       const SizedBox(height: 12),
-                      const Text('Could not load your stokvels.'),
+                      Text(l10n.loadStokvelsError),
                       const SizedBox(height: 12),
                       FilledButton(
                         onPressed: () {
                           ref.invalidate(homeSummariesProvider(user.id));
                         },
-                        child: const Text('Retry'),
+                        child: Text(l10n.retry),
                       ),
                     ],
                   ),

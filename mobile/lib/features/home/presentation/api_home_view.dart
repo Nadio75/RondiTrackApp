@@ -1,3 +1,6 @@
+import '../../../core/localization/localization_context.dart';
+import '../../../core/localization/localized_values.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +12,7 @@ class ApiHomeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final home = ref.watch(authenticatedHomeProvider);
+    final l10n = context.l10n;
 
     return RefreshIndicator(
       onRefresh: () {
@@ -19,35 +23,37 @@ class ApiHomeView extends ConsumerWidget {
         padding: const EdgeInsets.all(20),
         children: [
           Text(
-            'Your stokvel overview',
+            l10n.stokvelOverview,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 20),
           switch (home) {
-            AsyncData(:final value) when value == null => const Card(
+            AsyncData(:final value) when value == null => Card(
               child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text('No Home data is available yet.'),
+                padding: const EdgeInsets.all(24),
+                child: Text(l10n.noHomeData),
               ),
             ),
             AsyncData(:final value)
                 when value != null && value.stokvels.isEmpty =>
-              const Card(
+              Card(
                 child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Text('You have not joined any stokvels yet.'),
+                  padding: const EdgeInsets.all(24),
+                  child: Text(l10n.noStokvels),
                 ),
               ),
             AsyncData(:final value) when value != null => Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('Last updated: ${value.updatedAtUtc.toLocal()}'),
+                Text(l10n.lastUpdated(value.updatedAtUtc.toLocal().toString())),
                 const SizedBox(height: 12),
                 for (final stokvel in value.stokvels)
                   Card(
                     child: ListTile(
                       title: Text(stokvel.name),
-                      subtitle: Text('Role: ${stokvel.role}'),
+                      subtitle: Text(
+                        l10n.roleLabel(localizedRole(l10n, stokvel.role)),
+                      ),
                     ),
                   ),
               ],
@@ -57,7 +63,7 @@ class ApiHomeView extends ConsumerWidget {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    const Text('Could not load your stokvels.'),
+                    Text(l10n.loadStokvelsError),
                     const SizedBox(height: 12),
                     FilledButton(
                       onPressed: () async {
@@ -70,7 +76,7 @@ class ApiHomeView extends ConsumerWidget {
                           // The provider displays the error state.
                         }
                       },
-                      child: const Text('Retry'),
+                      child: Text(l10n.retry),
                     ),
                   ],
                 ),

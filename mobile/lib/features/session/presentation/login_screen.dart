@@ -1,3 +1,6 @@
+import '../../../core/localization/localization_context.dart';
+import '../../../core/localization/language_selector.dart';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,18 +47,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       setState(() {
         if (status == 400 || status == 401) {
-          errorMessage = 'Invalid email or password';
+          errorMessage = 'invalidCredentials';
         } else if (status == 429) {
-          errorMessage = 'Too many attempts. Please try again later.';
+          errorMessage = 'tooManyAttempts';
         } else {
-          errorMessage = 'Unable to sign in. Check your connection and retry.';
+          errorMessage = 'signInConnectionError';
         }
       });
     } catch (_) {
       if (!mounted) return;
 
       setState(() {
-        errorMessage = 'Unable to sign in. Please try again.';
+        errorMessage = 'signInError';
       });
     } finally {
       if (mounted) {
@@ -68,6 +71,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -88,15 +92,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                const Text('Sign in to manage your stokvel'),
+                Text(l10n.signInSubtitle),
+                const SizedBox(height: 24),
+                const LanguageSelector(),
                 const SizedBox(height: 32),
                 TextField(
                   controller: emailController,
                   enabled: !isLoading,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.email,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -104,9 +110,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   controller: passwordController,
                   enabled: !isLoading,
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.password,
+                    border: const OutlineInputBorder(),
                   ),
                   onSubmitted: (_) {
                     if (!isLoading) login();
@@ -114,10 +120,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 if (errorMessage != null) ...[
                   const SizedBox(height: 12),
-                  Text(
-                    errorMessage!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
+                  Text(switch (errorMessage) {
+                    'invalidCredentials' => l10n.invalidCredentials,
+                    'tooManyAttempts' => l10n.tooManyAttempts,
+                    'signInConnectionError' => l10n.signInConnectionError,
+                    _ => l10n.signInError,
+                  }, style: const TextStyle(color: Colors.red)),
                 ],
                 const SizedBox(height: 24),
                 SizedBox(
@@ -130,7 +138,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Login'),
+                        : Text(l10n.login),
                   ),
                 ),
               ],

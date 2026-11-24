@@ -1,3 +1,6 @@
+import '../../../core/localization/localization_context.dart';
+import '../../../core/localization/language_selector.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,21 +14,26 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(sessionProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: Text(l10n.profile)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           const CircleAvatar(radius: 36, child: Icon(Icons.person, size: 36)),
           const SizedBox(height: 20),
           Text(
-            user?.name ?? 'Guest',
+            user?.name ?? l10n.guest,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(user?.email ?? '', textAlign: TextAlign.center),
+          const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 12),
+          const LanguageSelector(),
           if (kDebugMode && ref.watch(demoPersonasEnabledProvider)) ...[
             const SizedBox(height: 24),
             const Divider(),
@@ -77,7 +85,7 @@ class ProfileScreen extends ConsumerWidget {
               ref.read(sessionProvider.notifier).logoutWithApi();
             },
             icon: const Icon(Icons.logout),
-            label: const Text('Sign out'),
+            label: Text(l10n.signOut),
           ),
         ],
       ),

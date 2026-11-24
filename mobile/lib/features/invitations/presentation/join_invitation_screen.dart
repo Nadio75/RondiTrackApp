@@ -1,3 +1,5 @@
+import '../../../core/localization/localization_context.dart';
+
 import 'package:flutter/material.dart';
 
 class JoinInvitationScreen extends StatelessWidget {
@@ -7,8 +9,9 @@ class JoinInvitationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Stokvel invitation')),
+      appBar: AppBar(title: Text(l10n.stokvelInvitation)),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -24,15 +27,12 @@ class JoinInvitationScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'You have been invited!',
+                  l10n.youAreInvited,
                   style: Theme.of(context).textTheme.headlineSmall,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Your invitation code is:',
-                  textAlign: TextAlign.center,
-                ),
+                Text(l10n.invitationCode, textAlign: TextAlign.center),
                 const SizedBox(height: 8),
                 SelectableText(
                   code,
@@ -40,11 +40,7 @@ class JoinInvitationScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Invitation acceptance will be available '
-                  'when the invitation service is connected.',
-                  textAlign: TextAlign.center,
-                ),
+                Text(l10n.invitationUnavailable, textAlign: TextAlign.center),
               ],
             ),
           ),

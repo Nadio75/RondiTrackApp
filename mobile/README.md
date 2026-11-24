@@ -463,3 +463,85 @@ results, coverage measurements, performance comparisons, privacy
 verification and CI results.
 
 Unfinished or unverified requirements will be documented honestly.
+
+
+## Assignment 12.1 - English and Sepedi Localization
+
+### Implementation
+
+RondiTrack supports English (`en`) and Sepedi (`nso`) through
+Flutter's generated localization resources.
+
+- 101 translation entries per language.
+- 12 localized feature screens.
+- Language selection available on Login and Profile.
+- Language preferences persisted using SharedPreferences.
+- English is the default language.
+- Invalid stored language preferences fall back to English.
+- Unsupported languages are rejected.
+- Dynamic placeholders preserve member names and financial values.
+- Contribution messages support singular and plural forms.
+- Navigation labels update when the language changes.
+- Compact, medium and expanded layouts support both languages.
+
+### Design decisions
+
+Flutter ARB resources are used instead of maintaining separate
+hardcoded translation dictionaries.
+
+Riverpod manages the selected language and updates the application
+without requiring a restart.
+
+Only the language code is stored in SharedPreferences. No member
+identity, financial information or authentication credentials are
+stored by the language preference provider.
+
+The installed Flutter SDK does not provide native Sepedi framework
+localizations. Custom delegates therefore provide an English
+framework fallback while application-owned labels support Sepedi.
+
+Financial values retain their existing South African Rand formatting
+and are not converted when the language changes.
+
+### Automated localization tests
+
+| Test file | Passing tests |
+| --- | ---: |
+| localization_resources_test.dart | 12 |
+| language_provider_test.dart | 7 |
+| language_selector_test.dart | 5 |
+| real_app_localization_test.dart | 6 |
+| Total | 30 |
+
+The tests cover translation resources, dynamic placeholders,
+pluralization, persistence, invalid preferences, language switching,
+framework compatibility, dark mode, responsive navigation and
+large-text rendering.
+
+The real application was tested at compact, medium and expanded
+viewport sizes, including 360dp with 200% text scaling.
+
+### Verification results
+
+- Baseline regression suite: 282 passing tests.
+- New localization tests: 30 passing tests.
+- Combined regression suite: 312 passing tests.
+- Static analysis: no issues found.
+- Translation resource keys: identical across both languages.
+
+### Running localization tests
+
+```powershell
+flutter gen-l10n
+dart analyze --fatal-infos
+flutter test test/core/localization
+flutter test
+```
+
+### Remaining localization verification
+
+Manual Chrome testing and actual application screenshots will be
+completed during final Assignment 12.1 verification.
+
+Automated tests do not replace native screen-reader testing,
+human linguistic review or physical-device verification.
