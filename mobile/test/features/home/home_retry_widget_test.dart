@@ -93,6 +93,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Bitcube'), findsOneWidget);
-    expect(find.text('Role: treasurer'), findsOneWidget);
+    expect(find.text('Role: Treasurer'), findsOneWidget);
   });
 }

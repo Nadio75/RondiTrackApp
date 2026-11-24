@@ -664,3 +664,55 @@ Verification checkpoint:
 - Regression execution time: approximately 54 seconds.
 
 All test credentials and account identifiers are synthetic.
+
+### Golden testing and visual regression
+
+The production Home screen uses a reusable StokvelSummaryCard
+that receives its data through constructor parameters without
+depending on Riverpod or a repository.
+
+Alchemist 0.14.1 verifies six visual scenarios:
+
+- Treasurer with up-to-date contributions in light and dark mode.
+- Member with contributions in arrears in light and dark mode.
+- Member with unknown contribution status in light and dark mode.
+
+Four reference PNG files are maintained:
+
+- Platform-independent CI light and dark goldens.
+- Windows-specific light and dark goldens.
+
+The Windows images were visually inspected before approval.
+All golden test data is synthetic.
+
+Run golden comparisons:
+
+    flutter test test/goldens --reporter expanded
+
+Regenerate reference images only after intentional visual changes
+and review the resulting images before committing:
+
+    flutter test test/goldens --update-goldens
+
+#### Golden mutation evidence
+
+The card padding was temporarily changed from 20 to 32 logical
+pixels without regenerating the approved reference images.
+
+Results:
+
+- Original implementation: five tests passed.
+- Mutated implementation: four golden comparisons failed.
+- The standalone tap-interaction test continued passing.
+- Restored implementation: five tests passed.
+- Full regression: 406 tests passed in 57 seconds.
+- Static analysis: no issues found.
+
+The mutation increased the Windows golden image height from
+768 to 840 pixels and the CI image height from 762 to 834 pixels.
+
+The original source was restored byte-for-byte. Reference images
+were not overwritten during mutation testing.
+
+Approved reference images, failure comparison images and red/green
+test logs are stored in the Assignment 12.1 submission evidence.

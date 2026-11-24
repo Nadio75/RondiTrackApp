@@ -1,10 +1,9 @@
 import '../../../core/localization/localization_context.dart';
-import '../../../core/localization/localized_values.dart';
+import 'stokvel_summary_card.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/money/cents.dart';
 import '../../session/presentation/session_provider.dart';
 import '../../session/presentation/session_origin_provider.dart';
 import 'api_home_view.dart';
@@ -94,55 +93,17 @@ class HomeScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   for (final summary in value)
-                    Card(
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () {
-                          StokvelRoute(id: summary.stokvel.id).push(context);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                summary.stokvel.name,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(summary.stokvel.description),
-                              const SizedBox(height: 16),
-                              Text(
-                                l10n.monthlyContribution(
-                                  formatRands(
-                                    summary.stokvel.monthlyContributionCents,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                l10n.roleLabel(
-                                  localizedRole(l10n, summary.role.name),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                l10n.contributionStatus(
-                                  localizedContributionStatus(
-                                    l10n,
-                                    summary.contributionStatus?.name ?? "none",
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    StokvelSummaryCard(
+                      stokvel: summary.stokvel,
+                      role: summary.role,
+                      contributionStatus: summary.contributionStatus,
+                      onTap: () {
+                        StokvelRoute(id: summary.stokvel.id).push(context);
+                      },
                     ),
                 ],
               ),
+
               AsyncError() => Card(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
