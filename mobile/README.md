@@ -1,4 +1,4 @@
-﻿# RondiTrack
+# RondiTrack
 
 RondiTrack is a Flutter application for viewing stokvel membership information, monthly savings contributions, and contribution statuses.
 
@@ -369,3 +369,97 @@ flutter pub get
 flutter run -d chrome `
   --dart-define=APP_FLAVOR=dev `
   --dart-define=API_BASE_URL=http://localhost:8080
+```
+
+
+## Assignment 12.1 - Tests, Speed and Privacy
+
+### Baseline
+
+Measured on 24 November 2026, before implementation:
+
+- Flutter tests: 282 passed.
+- Static analysis: no issues.
+- Executable lines: 2867.
+- Covered lines: 1459.
+- Uncovered lines: 1408.
+- Baseline line coverage: 50.89%.
+- Initial CI coverage threshold: 50%.
+
+### Test plan
+
+| Area | Planned verification |
+|---|---|
+| Notifiers | Loading, success, failure and refresh states |
+| Failure mapping | Network, validation, authentication and server failures |
+| Home widgets | Loading, empty, success, error and retry states |
+| Accessibility | Semantic labels, tap targets and 200% text scaling |
+| Golden tests | Stokvel cards in light and dark themes |
+| Offline outbox | Persistence, retries and stable idempotency keys |
+| Integration | Android application workflow and three consecutive successful runs |
+| Localization | English, Sepedi, language switching and persistence |
+| Performance | Contributions list rebuilds before and after optimization |
+| Privacy | Scrubbing sensitive information from monitoring events |
+| Analytics | Approved event names and non-sensitive properties |
+| Mutation testing | Deliberately break behaviour, verify failure, restore and retest |
+| CI | Formatting, analysis, tests and coverage enforcement |
+
+All existing tests must continue to pass.
+
+Chrome will be used for routine development and browser verification.
+Android-specific requirements will be verified separately.
+
+### Privacy
+
+RondiTrack handles personal and financial information.
+Monitoring and analytics must follow data minimisation principles
+consistent with POPIA.
+
+The following information must not be sent to Sentry or analytics:
+
+- Member names.
+- Email addresses.
+- Authentication tokens.
+- Passwords.
+- Payment and contribution amounts.
+- Proof-of-payment filenames.
+- Sensitive request and response bodies.
+- Authentication headers and cookies.
+
+Monitoring events will be scrubbed before transmission.
+Analytics will use explicitly approved event names and properties.
+Unknown or sensitive properties will be excluded.
+
+Monitoring configuration will be environment-specific.
+Production credentials must not be committed to Git.
+
+Locally stored session and financial data must be isolated appropriately
+and cleared according to the application's session lifecycle.
+
+The selected application language is a non-sensitive preference and
+may be stored using SharedPreferences.
+
+Privacy controls will be verified through automated tests and
+deliberate mutation tests.
+
+### Localization plan
+
+The application will support English and Sepedi (Northern Sotho).
+
+- English language code: en.
+- Sepedi language code: nso.
+- Application messages will use localization resources.
+- Language selection will be available from Profile.
+- The selected language will persist across application restarts.
+- Dynamic messages and plurals will be localized.
+- South African currency formatting will be preserved.
+- Framework localization limitations will be documented.
+- Both languages will be tested during final verification.
+
+### Submission evidence
+
+Evidence will include actual application screenshots, automated test
+results, coverage measurements, performance comparisons, privacy
+verification and CI results.
+
+Unfinished or unverified requirements will be documented honestly.
