@@ -630,3 +630,37 @@ testing or manual verification on a physical device.
 
 Manual Chrome verification of English, Sepedi, and cached Home
 states remains part of final submission evidence.
+
+### Network, authentication and cache verification
+
+HTTP 400 and 422 are classified as validation failures rather
+than unexpected server failures.
+
+The failure mapping matrix contains 37 passing tests covering
+HTTP responses, ProblemDetails, correlation references,
+Retry-After headers and transport failures.
+
+The offline Home service contains 15 passing tests covering
+account isolation, stale sessions, cache timestamps, offline
+fallback, server unavailability and authentication refusals.
+
+Five additional Mocktail authentication tests verify:
+
+- 401 refreshes mocked session and retries once.
+- Refused refresh prevents request replay.
+- No connection preserves mocked session.
+- 403 never refreshes the mocked session.
+- Repeated 401 stops after one mocked refresh.
+
+The mocked tests verify interceptor decisions and interactions.
+Existing real authentication-client tests independently verify
+token clearing, concurrent refresh and session invalidation.
+
+Verification checkpoint:
+
+- Network tests: 119 passed.
+- Full regression suite: 401 passed.
+- Static analysis: no issues found.
+- Regression execution time: approximately 54 seconds.
+
+All test credentials and account identifiers are synthetic.

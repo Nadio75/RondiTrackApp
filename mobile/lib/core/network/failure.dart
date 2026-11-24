@@ -34,6 +34,12 @@ final class RateLimitedFailure extends Failure {
   final Duration? retryAfter;
 }
 
+final class ValidationFailure extends Failure {
+  const ValidationFailure({required this.statusCode, super.correlationId});
+
+  final int statusCode;
+}
+
 final class ServerFailure extends Failure {
   const ServerFailure({this.statusCode, super.correlationId});
 

@@ -27,6 +27,35 @@ DioException transportError(DioExceptionType type) {
 }
 
 void main() {
+  group('Client validation failures', () {
+    for (final status in [400, 422]) {
+      test('HTTP $status maps to validation failure', () {
+        final failure = mapDioFailure(httpError(status));
+
+        expect(failure, isA<ValidationFailure>());
+        expect((failure as ValidationFailure).statusCode, status);
+        expect(failure.correlationId, isNull);
+      });
+
+      test('HTTP $status preserves validation reference', () {
+        final failure = mapDioFailure(
+          httpError(
+            status,
+            body: {
+              'title': 'Validation failed',
+              'correlationId': 'validation-reference',
+              'detail': 'Synthetic invalid request',
+            },
+          ),
+        );
+
+        expect(failure, isA<ValidationFailure>());
+        expect((failure as ValidationFailure).statusCode, status);
+        expect(failure.correlationId, 'validation-reference');
+      });
+    }
+  });
+
   group('HTTP failure mapping table', () {
     final cases = <int, Matcher>{
       401: isA<UnauthorizedFailure>(),
