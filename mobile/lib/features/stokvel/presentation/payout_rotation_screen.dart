@@ -1,3 +1,5 @@
+import '../../../core/localization/localization_context.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,22 +20,20 @@ class PayoutRotationScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final key = (stokvelId: stokvelId, cycleId: cycleId);
     final provider = payoutRotationProvider(key);
     final state = payoutViewStateFromAsync(ref.watch(provider));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Payout rotation')),
+      appBar: AppBar(title: Text(l10n.payoutRotation)),
       body: SafeArea(
         child: switch (state) {
           PayoutLoading() => const Center(child: CircularProgressIndicator()),
-          PayoutEmpty() => const Center(
+          PayoutEmpty() => Center(
             child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text(
-                'No payout rotation is available for this cycle.',
-                textAlign: TextAlign.center,
-              ),
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.payoutEmpty, textAlign: TextAlign.center),
             ),
           ),
           PayoutFailure() => Center(
@@ -42,15 +42,12 @@ class PayoutRotationScreen extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'Could not load the payout rotation.',
-                    textAlign: TextAlign.center,
-                  ),
+                  Text(l10n.payoutLoadError, textAlign: TextAlign.center),
                   const SizedBox(height: 16),
                   FilledButton.icon(
                     onPressed: () => ref.invalidate(provider),
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -70,6 +67,7 @@ class _RotationContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final next = rotation.entries.where((entry) => entry.isNext).firstOrNull;
 
@@ -82,10 +80,10 @@ class _RotationContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('Payout schedule', style: theme.textTheme.headlineSmall),
+                Text(l10n.payoutSchedule, style: theme.textTheme.headlineSmall),
                 const SizedBox(height: 8),
                 Text(
-                  'Recipients are shown in their assigned payout order.',
+                  l10n.recipientOrderDescription,
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 20),
@@ -98,7 +96,7 @@ class _RotationContent extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Next recipient',
+                            l10n.nextRecipient,
                             style: theme.textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
@@ -117,7 +115,7 @@ class _RotationContent extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                 ],
-                Text('Rotation order', style: theme.textTheme.titleLarge),
+                Text(l10n.rotationOrder, style: theme.textTheme.titleLarge),
                 const SizedBox(height: 12),
                 for (final entry in rotation.entries) ...[
                   _PayoutEntryCard(entry: entry),
@@ -139,13 +137,14 @@ class _PayoutEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     final label = switch (entry.status) {
-      PayoutStatus.paid => 'Paid',
-      PayoutStatus.next => 'Next',
-      PayoutStatus.upcoming => 'Upcoming',
-      PayoutStatus.unknown => 'Unknown',
+      PayoutStatus.paid => l10n.paid,
+      PayoutStatus.next => l10n.next,
+      PayoutStatus.upcoming => l10n.upcoming,
+      PayoutStatus.unknown => l10n.unknown,
     };
 
     final icon = switch (entry.status) {
@@ -172,23 +171,22 @@ class _PayoutEntryCard extends StatelessWidget {
                     style: theme.textTheme.titleMedium,
                   ),
                   const SizedBox(height: 6),
-                  Text('Status: $label'),
+                  Text(l10n.statusLabel(label)),
                   const SizedBox(height: 6),
                   Text(formatRands(entry.amountCents)),
                   if (entry.isNext) ...[
                     const SizedBox(height: 6),
                     Text(
-                      'Next payout recipient',
+                      l10n.nextPayoutRecipient,
                       style: theme.textTheme.labelLarge,
                     ),
                   ],
                   if (entry.scheduledDate != null) ...[
                     const SizedBox(height: 6),
                     Text(
-                      'Scheduled: '
-                      '${entry.scheduledDate!.day}/'
-                      '${entry.scheduledDate!.month}/'
-                      '${entry.scheduledDate!.year}',
+                      l10n.scheduled(
+                        '${entry.scheduledDate!.day}/${entry.scheduledDate!.month}/${entry.scheduledDate!.year}',
+                      ),
                     ),
                   ],
                 ],

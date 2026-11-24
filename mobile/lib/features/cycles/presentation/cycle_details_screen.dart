@@ -1,3 +1,5 @@
+import '../../../core/localization/localization_context.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +20,7 @@ class CycleDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final user = ref.watch(sessionProvider);
     final repository = ref.watch(stokvelRepositoryProvider);
 
@@ -31,16 +34,16 @@ class CycleDetailsScreen extends ConsumerWidget {
 
     if (cycle == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Cycle')),
-        body: const Center(child: Text('Cycle not found')),
+        appBar: AppBar(title: Text(l10n.cycle)),
+        body: Center(child: Text(l10n.cycleNotFound)),
       );
     }
 
     final status = switch (cycle.status) {
-      CycleStatus.active => 'Active',
-      CycleStatus.upcoming => 'Upcoming',
-      CycleStatus.closed => 'Closed',
-      CycleStatus.unknown => 'Unknown',
+      CycleStatus.active => l10n.active,
+      CycleStatus.upcoming => l10n.upcoming,
+      CycleStatus.closed => l10n.closed,
+      CycleStatus.unknown => l10n.unknown,
     };
 
     String dateLabel(DateTime date) {
@@ -50,7 +53,7 @@ class CycleDetailsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Cycle dashboard')),
+      appBar: AppBar(title: Text(l10n.cycleDashboard)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -60,9 +63,12 @@ class CycleDetailsScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Current cycle', style: theme.textTheme.headlineSmall),
+                  Text(l10n.currentCycle, style: theme.textTheme.headlineSmall),
                   const SizedBox(height: 8),
-                  Text('Cycle $cycleId', style: theme.textTheme.bodyMedium),
+                  Text(
+                    l10n.cycleIdentifier(cycleId),
+                    style: theme.textTheme.bodyMedium,
+                  ),
                   const SizedBox(height: 20),
                   Card(
                     child: Padding(
@@ -71,15 +77,15 @@ class CycleDetailsScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Cycle overview',
+                            l10n.cycleOverview,
                             style: theme.textTheme.titleLarge,
                           ),
                           const SizedBox(height: 16),
-                          Text('Status: $status'),
+                          Text(l10n.statusLabel(status)),
                           const SizedBox(height: 12),
-                          Text('Start date: ${dateLabel(cycle.startDate)}'),
+                          Text(l10n.startDate(dateLabel(cycle.startDate))),
                           const SizedBox(height: 12),
-                          Text('End date: ${dateLabel(cycle.endDate)}'),
+                          Text(l10n.endDate(dateLabel(cycle.endDate))),
                         ],
                       ),
                     ),
@@ -92,15 +98,11 @@ class CycleDetailsScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Contribution summary',
+                            l10n.contributionSummary,
                             style: theme.textTheme.titleLarge,
                           ),
                           const SizedBox(height: 12),
-                          const Text(
-                            'Paid and unpaid member counts are not '
-                            'available for this cycle in the current '
-                            'demo data.',
-                          ),
+                          Text(l10n.demoContributionCounts),
                         ],
                       ),
                     ),
@@ -113,14 +115,11 @@ class CycleDetailsScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Payout information',
+                            l10n.payoutInformation,
                             style: theme.textTheme.titleLarge,
                           ),
                           const SizedBox(height: 12),
-                          const Text(
-                            'View the assigned recipient order and '
-                            'the next payout for this cycle.',
-                          ),
+                          Text(l10n.payoutDescription),
                           const SizedBox(height: 16),
                           FilledButton.icon(
                             onPressed: () {
@@ -130,7 +129,7 @@ class CycleDetailsScreen extends ConsumerWidget {
                               ).go(context);
                             },
                             icon: const Icon(Icons.list_alt),
-                            label: const Text('View payout rotation'),
+                            label: Text(l10n.viewPayoutRotation),
                           ),
                         ],
                       ),

@@ -47,8 +47,11 @@ dependencies:
   uuid: 4.6.0
   flutter_localizations:
     sdk: flutter
+  sentry_flutter: ^10.6.0
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
 
@@ -67,12 +70,15 @@ dev_dependencies:
   swagger_parser: 1.45.1
   drift_dev: 2.35.2
   sqlite3: 3.5.2
+  mocktail: 1.0.5
+  alchemist: 0.14.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

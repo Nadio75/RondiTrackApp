@@ -53,7 +53,7 @@ RandParseResult parseRandsStrict(String input) {
     cents = int.parse(parts[1].padRight(2, '0'));
   }
 
-  final maximumWhole = (0x7FFFFFFFFFFFFFFF - cents) ~/ 100;
+  final maximumWhole = (9007199254740991 - cents) ~/ 100;
 
   if (whole > maximumWhole) {
     return const RandParseFailure('Amount is too large.');

@@ -108,7 +108,7 @@ class SessionNotifier extends Notifier<DemoUser?> {
 
     if (accountId != null) {
       try {
-        await ref.read(homeCacheRepositoryProvider).clearAccount(accountId);
+        await ref.read(appDatabaseProvider).clearAccountData(accountId);
       } catch (error, stackTrace) {
         cleanupError = error;
         cleanupStackTrace = stackTrace;

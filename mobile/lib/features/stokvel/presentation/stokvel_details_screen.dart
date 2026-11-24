@@ -1,3 +1,6 @@
+import '../../../core/localization/localization_context.dart';
+import '../../../core/localization/localized_values.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -25,26 +28,27 @@ class StokvelDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final detailsAsync = ref.watch(stokvelDetailsProvider(stokvelId));
 
     return detailsAsync.when(
       loading: () => Scaffold(
-        appBar: AppBar(title: const Text('Stokvel')),
+        appBar: AppBar(title: Text(l10n.stokvel)),
         body: const Center(child: CircularProgressIndicator()),
       ),
       error: (error, stackTrace) => Scaffold(
-        appBar: AppBar(title: const Text('Stokvel')),
+        appBar: AppBar(title: Text(l10n.stokvel)),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Could not load stokvel details.'),
+              Text(l10n.loadStokvelDetailsError),
               const SizedBox(height: 12),
               FilledButton(
                 onPressed: () {
                   ref.invalidate(stokvelDetailsProvider(stokvelId));
                 },
-                child: const Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -53,8 +57,8 @@ class StokvelDetailsScreen extends ConsumerWidget {
       data: (details) {
         if (details == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Stokvel')),
-            body: const Center(child: Text('Stokvel not found')),
+            appBar: AppBar(title: Text(l10n.stokvel)),
+            body: Center(child: Text(l10n.stokvelNotFound)),
           );
         }
         final user = ref.watch(sessionProvider);
@@ -87,7 +91,7 @@ class StokvelDetailsScreen extends ConsumerWidget {
                           return const SizedBox.shrink();
                         }
                         return PopupMenuButton<String>(
-                          tooltip: 'Switch stokvel',
+                          tooltip: l10n.switchStokvel,
                           icon: const Icon(Icons.swap_horiz),
                           onSelected: (id) {
                             if (id == stokvelId) {
@@ -121,14 +125,14 @@ class StokvelDetailsScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Monthly contribution'),
+                      Text(l10n.monthlyContributionTitle),
                       const SizedBox(height: 8),
                       Text(
                         money(details.stokvel.monthlyContributionCents),
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       const SizedBox(height: 12),
-                      Text('Your role: ${role.name}'),
+                      Text(l10n.yourRole(localizedRole(l10n, role.name))),
                     ],
                   ),
                 ),
@@ -141,11 +145,18 @@ class StokvelDetailsScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Current cycle',
+                          l10n.currentCycle,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 8),
-                        Text('Status: ${currentCycle.status.name}'),
+                        Text(
+                          l10n.statusLabel(
+                            localizedContributionStatus(
+                              l10n,
+                              currentCycle.status.name,
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         FilledButton.icon(
                           onPressed: () {
@@ -155,7 +166,7 @@ class StokvelDetailsScreen extends ConsumerWidget {
                             ).go(context);
                           },
                           icon: const Icon(Icons.calendar_month),
-                          label: const Text('View Current Cycle'),
+                          label: Text(l10n.viewCurrentCycle),
                         ),
                       ],
                     ),
@@ -172,8 +183,8 @@ class StokvelDetailsScreen extends ConsumerWidget {
                     children: [
                       Text(
                         canViewAll
-                            ? 'Total paid contributions'
-                            : 'Your paid contributions',
+                            ? l10n.totalPaidContributions
+                            : l10n.yourPaidContributions,
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -186,15 +197,15 @@ class StokvelDetailsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                canViewAll ? 'Member contributions' : 'Your contributions',
+                canViewAll ? l10n.memberContributions : l10n.yourContributions,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 12),
               if (details.visibleContributions.isEmpty)
-                const Card(
+                Card(
                   child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Text('No contributions found.'),
+                    padding: const EdgeInsets.all(20),
+                    child: Text(l10n.noContributionsFound),
                   ),
                 ),
               for (final contribution in details.visibleContributions)
@@ -226,9 +237,14 @@ class StokvelDetailsScreen extends ConsumerWidget {
                               )
                               .map((member) => member.name)
                               .firstOrNull ??
-                          'Unknown member',
+                          l10n.unknownMember,
                     ),
-                    subtitle: Text(contribution.status.name.toUpperCase()),
+                    subtitle: Text(
+                      localizedContributionStatus(
+                        l10n,
+                        contribution.status.name,
+                      ).toUpperCase(),
+                    ),
                     trailing: Text(money(contribution.amountCents)),
                   ),
                 ),

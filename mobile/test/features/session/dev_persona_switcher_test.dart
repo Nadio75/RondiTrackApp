@@ -59,6 +59,8 @@ void main() {
 
     expect(container.read(sessionProvider)?.email, 'thabo@example.com');
 
+    await tester.ensureVisible(find.text('Naledi - Non-member'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Naledi - Non-member'));
     await tester.pump();
 

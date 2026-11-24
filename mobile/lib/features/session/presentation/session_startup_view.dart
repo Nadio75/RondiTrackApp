@@ -1,3 +1,5 @@
+import '../../../core/localization/localization_context.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,17 +14,18 @@ class SessionStartupView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final lifecycle = ref.watch(sessionLifecycleProvider);
 
     if (lifecycle == SessionLifecycle.restoring) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Restoring your session...'),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(l10n.restoringSession),
             ],
           ),
         ),
@@ -35,13 +38,13 @@ class SessionStartupView extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Unable to restore your session.'),
+              Text(l10n.restoreSessionError),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
                   ref.read(sessionProvider.notifier).restoreWithApi();
                 },
-                child: const Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),

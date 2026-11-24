@@ -440,6 +440,18 @@ class $PendingPaymentIntentsTable extends PendingPaymentIntents
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _nextAttemptAtUtcMeta = const VerificationMeta(
+    'nextAttemptAtUtc',
+  );
+  @override
+  late final GeneratedColumn<DateTime> nextAttemptAtUtc =
+      GeneratedColumn<DateTime>(
+        'next_attempt_at_utc',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     intentId,
@@ -451,6 +463,7 @@ class $PendingPaymentIntentsTable extends PendingPaymentIntents
     idempotencyKey,
     status,
     createdAtUtc,
+    nextAttemptAtUtc,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -543,6 +556,15 @@ class $PendingPaymentIntentsTable extends PendingPaymentIntents
     } else if (isInserting) {
       context.missing(_createdAtUtcMeta);
     }
+    if (data.containsKey('next_attempt_at_utc')) {
+      context.handle(
+        _nextAttemptAtUtcMeta,
+        nextAttemptAtUtc.isAcceptableOrUnknown(
+          data['next_attempt_at_utc']!,
+          _nextAttemptAtUtcMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -588,6 +610,10 @@ class $PendingPaymentIntentsTable extends PendingPaymentIntents
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at_utc'],
       )!,
+      nextAttemptAtUtc: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}next_attempt_at_utc'],
+      ),
     );
   }
 
@@ -608,6 +634,7 @@ class PendingPaymentIntent extends DataClass
   final String idempotencyKey;
   final String status;
   final DateTime createdAtUtc;
+  final DateTime? nextAttemptAtUtc;
   const PendingPaymentIntent({
     required this.intentId,
     required this.accountId,
@@ -618,6 +645,7 @@ class PendingPaymentIntent extends DataClass
     required this.idempotencyKey,
     required this.status,
     required this.createdAtUtc,
+    this.nextAttemptAtUtc,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -631,6 +659,9 @@ class PendingPaymentIntent extends DataClass
     map['idempotency_key'] = Variable<String>(idempotencyKey);
     map['status'] = Variable<String>(status);
     map['created_at_utc'] = Variable<DateTime>(createdAtUtc);
+    if (!nullToAbsent || nextAttemptAtUtc != null) {
+      map['next_attempt_at_utc'] = Variable<DateTime>(nextAttemptAtUtc);
+    }
     return map;
   }
 
@@ -645,6 +676,9 @@ class PendingPaymentIntent extends DataClass
       idempotencyKey: Value(idempotencyKey),
       status: Value(status),
       createdAtUtc: Value(createdAtUtc),
+      nextAttemptAtUtc: nextAttemptAtUtc == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextAttemptAtUtc),
     );
   }
 
@@ -663,6 +697,9 @@ class PendingPaymentIntent extends DataClass
       idempotencyKey: serializer.fromJson<String>(json['idempotencyKey']),
       status: serializer.fromJson<String>(json['status']),
       createdAtUtc: serializer.fromJson<DateTime>(json['createdAtUtc']),
+      nextAttemptAtUtc: serializer.fromJson<DateTime?>(
+        json['nextAttemptAtUtc'],
+      ),
     );
   }
   @override
@@ -678,6 +715,7 @@ class PendingPaymentIntent extends DataClass
       'idempotencyKey': serializer.toJson<String>(idempotencyKey),
       'status': serializer.toJson<String>(status),
       'createdAtUtc': serializer.toJson<DateTime>(createdAtUtc),
+      'nextAttemptAtUtc': serializer.toJson<DateTime?>(nextAttemptAtUtc),
     };
   }
 
@@ -691,6 +729,7 @@ class PendingPaymentIntent extends DataClass
     String? idempotencyKey,
     String? status,
     DateTime? createdAtUtc,
+    Value<DateTime?> nextAttemptAtUtc = const Value.absent(),
   }) => PendingPaymentIntent(
     intentId: intentId ?? this.intentId,
     accountId: accountId ?? this.accountId,
@@ -701,6 +740,9 @@ class PendingPaymentIntent extends DataClass
     idempotencyKey: idempotencyKey ?? this.idempotencyKey,
     status: status ?? this.status,
     createdAtUtc: createdAtUtc ?? this.createdAtUtc,
+    nextAttemptAtUtc: nextAttemptAtUtc.present
+        ? nextAttemptAtUtc.value
+        : this.nextAttemptAtUtc,
   );
   PendingPaymentIntent copyWithCompanion(PendingPaymentIntentsCompanion data) {
     return PendingPaymentIntent(
@@ -719,6 +761,9 @@ class PendingPaymentIntent extends DataClass
       createdAtUtc: data.createdAtUtc.present
           ? data.createdAtUtc.value
           : this.createdAtUtc,
+      nextAttemptAtUtc: data.nextAttemptAtUtc.present
+          ? data.nextAttemptAtUtc.value
+          : this.nextAttemptAtUtc,
     );
   }
 
@@ -733,7 +778,8 @@ class PendingPaymentIntent extends DataClass
           ..write('amountInCents: $amountInCents, ')
           ..write('idempotencyKey: $idempotencyKey, ')
           ..write('status: $status, ')
-          ..write('createdAtUtc: $createdAtUtc')
+          ..write('createdAtUtc: $createdAtUtc, ')
+          ..write('nextAttemptAtUtc: $nextAttemptAtUtc')
           ..write(')'))
         .toString();
   }
@@ -749,6 +795,7 @@ class PendingPaymentIntent extends DataClass
     idempotencyKey,
     status,
     createdAtUtc,
+    nextAttemptAtUtc,
   );
   @override
   bool operator ==(Object other) =>
@@ -762,7 +809,8 @@ class PendingPaymentIntent extends DataClass
           other.amountInCents == this.amountInCents &&
           other.idempotencyKey == this.idempotencyKey &&
           other.status == this.status &&
-          other.createdAtUtc == this.createdAtUtc);
+          other.createdAtUtc == this.createdAtUtc &&
+          other.nextAttemptAtUtc == this.nextAttemptAtUtc);
 }
 
 class PendingPaymentIntentsCompanion
@@ -776,6 +824,7 @@ class PendingPaymentIntentsCompanion
   final Value<String> idempotencyKey;
   final Value<String> status;
   final Value<DateTime> createdAtUtc;
+  final Value<DateTime?> nextAttemptAtUtc;
   final Value<int> rowid;
   const PendingPaymentIntentsCompanion({
     this.intentId = const Value.absent(),
@@ -787,6 +836,7 @@ class PendingPaymentIntentsCompanion
     this.idempotencyKey = const Value.absent(),
     this.status = const Value.absent(),
     this.createdAtUtc = const Value.absent(),
+    this.nextAttemptAtUtc = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PendingPaymentIntentsCompanion.insert({
@@ -799,6 +849,7 @@ class PendingPaymentIntentsCompanion
     required String idempotencyKey,
     this.status = const Value.absent(),
     required DateTime createdAtUtc,
+    this.nextAttemptAtUtc = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : intentId = Value(intentId),
        accountId = Value(accountId),
@@ -818,6 +869,7 @@ class PendingPaymentIntentsCompanion
     Expression<String>? idempotencyKey,
     Expression<String>? status,
     Expression<DateTime>? createdAtUtc,
+    Expression<DateTime>? nextAttemptAtUtc,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -830,6 +882,7 @@ class PendingPaymentIntentsCompanion
       if (idempotencyKey != null) 'idempotency_key': idempotencyKey,
       if (status != null) 'status': status,
       if (createdAtUtc != null) 'created_at_utc': createdAtUtc,
+      if (nextAttemptAtUtc != null) 'next_attempt_at_utc': nextAttemptAtUtc,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -844,6 +897,7 @@ class PendingPaymentIntentsCompanion
     Value<String>? idempotencyKey,
     Value<String>? status,
     Value<DateTime>? createdAtUtc,
+    Value<DateTime?>? nextAttemptAtUtc,
     Value<int>? rowid,
   }) {
     return PendingPaymentIntentsCompanion(
@@ -856,6 +910,7 @@ class PendingPaymentIntentsCompanion
       idempotencyKey: idempotencyKey ?? this.idempotencyKey,
       status: status ?? this.status,
       createdAtUtc: createdAtUtc ?? this.createdAtUtc,
+      nextAttemptAtUtc: nextAttemptAtUtc ?? this.nextAttemptAtUtc,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -890,6 +945,9 @@ class PendingPaymentIntentsCompanion
     if (createdAtUtc.present) {
       map['created_at_utc'] = Variable<DateTime>(createdAtUtc.value);
     }
+    if (nextAttemptAtUtc.present) {
+      map['next_attempt_at_utc'] = Variable<DateTime>(nextAttemptAtUtc.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -908,6 +966,231 @@ class PendingPaymentIntentsCompanion
           ..write('idempotencyKey: $idempotencyKey, ')
           ..write('status: $status, ')
           ..write('createdAtUtc: $createdAtUtc, ')
+          ..write('nextAttemptAtUtc: $nextAttemptAtUtc, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PaymentRetryLimitsTable extends PaymentRetryLimits
+    with TableInfo<$PaymentRetryLimitsTable, PaymentRetryLimit> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PaymentRetryLimitsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountIdMeta = const VerificationMeta(
+    'accountId',
+  );
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+    'account_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _retryAtUtcMeta = const VerificationMeta(
+    'retryAtUtc',
+  );
+  @override
+  late final GeneratedColumn<DateTime> retryAtUtc = GeneratedColumn<DateTime>(
+    'retry_at_utc',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [accountId, retryAtUtc];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'payment_retry_limits';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PaymentRetryLimit> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_id')) {
+      context.handle(
+        _accountIdMeta,
+        accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('retry_at_utc')) {
+      context.handle(
+        _retryAtUtcMeta,
+        retryAtUtc.isAcceptableOrUnknown(
+          data['retry_at_utc']!,
+          _retryAtUtcMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_retryAtUtcMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {accountId};
+  @override
+  PaymentRetryLimit map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PaymentRetryLimit(
+      accountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}account_id'],
+      )!,
+      retryAtUtc: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}retry_at_utc'],
+      )!,
+    );
+  }
+
+  @override
+  $PaymentRetryLimitsTable createAlias(String alias) {
+    return $PaymentRetryLimitsTable(attachedDatabase, alias);
+  }
+}
+
+class PaymentRetryLimit extends DataClass
+    implements Insertable<PaymentRetryLimit> {
+  final String accountId;
+  final DateTime retryAtUtc;
+  const PaymentRetryLimit({required this.accountId, required this.retryAtUtc});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_id'] = Variable<String>(accountId);
+    map['retry_at_utc'] = Variable<DateTime>(retryAtUtc);
+    return map;
+  }
+
+  PaymentRetryLimitsCompanion toCompanion(bool nullToAbsent) {
+    return PaymentRetryLimitsCompanion(
+      accountId: Value(accountId),
+      retryAtUtc: Value(retryAtUtc),
+    );
+  }
+
+  factory PaymentRetryLimit.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PaymentRetryLimit(
+      accountId: serializer.fromJson<String>(json['accountId']),
+      retryAtUtc: serializer.fromJson<DateTime>(json['retryAtUtc']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountId': serializer.toJson<String>(accountId),
+      'retryAtUtc': serializer.toJson<DateTime>(retryAtUtc),
+    };
+  }
+
+  PaymentRetryLimit copyWith({String? accountId, DateTime? retryAtUtc}) =>
+      PaymentRetryLimit(
+        accountId: accountId ?? this.accountId,
+        retryAtUtc: retryAtUtc ?? this.retryAtUtc,
+      );
+  PaymentRetryLimit copyWithCompanion(PaymentRetryLimitsCompanion data) {
+    return PaymentRetryLimit(
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      retryAtUtc: data.retryAtUtc.present
+          ? data.retryAtUtc.value
+          : this.retryAtUtc,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PaymentRetryLimit(')
+          ..write('accountId: $accountId, ')
+          ..write('retryAtUtc: $retryAtUtc')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(accountId, retryAtUtc);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PaymentRetryLimit &&
+          other.accountId == this.accountId &&
+          other.retryAtUtc == this.retryAtUtc);
+}
+
+class PaymentRetryLimitsCompanion extends UpdateCompanion<PaymentRetryLimit> {
+  final Value<String> accountId;
+  final Value<DateTime> retryAtUtc;
+  final Value<int> rowid;
+  const PaymentRetryLimitsCompanion({
+    this.accountId = const Value.absent(),
+    this.retryAtUtc = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PaymentRetryLimitsCompanion.insert({
+    required String accountId,
+    required DateTime retryAtUtc,
+    this.rowid = const Value.absent(),
+  }) : accountId = Value(accountId),
+       retryAtUtc = Value(retryAtUtc);
+  static Insertable<PaymentRetryLimit> custom({
+    Expression<String>? accountId,
+    Expression<DateTime>? retryAtUtc,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountId != null) 'account_id': accountId,
+      if (retryAtUtc != null) 'retry_at_utc': retryAtUtc,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PaymentRetryLimitsCompanion copyWith({
+    Value<String>? accountId,
+    Value<DateTime>? retryAtUtc,
+    Value<int>? rowid,
+  }) {
+    return PaymentRetryLimitsCompanion(
+      accountId: accountId ?? this.accountId,
+      retryAtUtc: retryAtUtc ?? this.retryAtUtc,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (retryAtUtc.present) {
+      map['retry_at_utc'] = Variable<DateTime>(retryAtUtc.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PaymentRetryLimitsCompanion(')
+          ..write('accountId: $accountId, ')
+          ..write('retryAtUtc: $retryAtUtc, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -921,6 +1204,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $CachedApiResponsesTable(this);
   late final $PendingPaymentIntentsTable pendingPaymentIntents =
       $PendingPaymentIntentsTable(this);
+  late final $PaymentRetryLimitsTable paymentRetryLimits =
+      $PaymentRetryLimitsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -928,6 +1213,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     cachedApiResponses,
     pendingPaymentIntents,
+    paymentRetryLimits,
   ];
 }
 
@@ -1151,6 +1437,7 @@ typedef $$PendingPaymentIntentsTableCreateCompanionBuilder =
       required String idempotencyKey,
       Value<String> status,
       required DateTime createdAtUtc,
+      Value<DateTime?> nextAttemptAtUtc,
       Value<int> rowid,
     });
 typedef $$PendingPaymentIntentsTableUpdateCompanionBuilder =
@@ -1164,6 +1451,7 @@ typedef $$PendingPaymentIntentsTableUpdateCompanionBuilder =
       Value<String> idempotencyKey,
       Value<String> status,
       Value<DateTime> createdAtUtc,
+      Value<DateTime?> nextAttemptAtUtc,
       Value<int> rowid,
     });
 
@@ -1218,6 +1506,11 @@ class $$PendingPaymentIntentsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAtUtc => $composableBuilder(
     column: $table.createdAtUtc,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get nextAttemptAtUtc => $composableBuilder(
+    column: $table.nextAttemptAtUtc,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1275,6 +1568,11 @@ class $$PendingPaymentIntentsTableOrderingComposer
     column: $table.createdAtUtc,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get nextAttemptAtUtc => $composableBuilder(
+    column: $table.nextAttemptAtUtc,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PendingPaymentIntentsTableAnnotationComposer
@@ -1316,6 +1614,11 @@ class $$PendingPaymentIntentsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAtUtc => $composableBuilder(
     column: $table.createdAtUtc,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get nextAttemptAtUtc => $composableBuilder(
+    column: $table.nextAttemptAtUtc,
     builder: (column) => column,
   );
 }
@@ -1375,6 +1678,7 @@ class $$PendingPaymentIntentsTableTableManager
                 Value<String> idempotencyKey = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<DateTime> createdAtUtc = const Value.absent(),
+                Value<DateTime?> nextAttemptAtUtc = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PendingPaymentIntentsCompanion(
                 intentId: intentId,
@@ -1386,6 +1690,7 @@ class $$PendingPaymentIntentsTableTableManager
                 idempotencyKey: idempotencyKey,
                 status: status,
                 createdAtUtc: createdAtUtc,
+                nextAttemptAtUtc: nextAttemptAtUtc,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -1399,6 +1704,7 @@ class $$PendingPaymentIntentsTableTableManager
                 required String idempotencyKey,
                 Value<String> status = const Value.absent(),
                 required DateTime createdAtUtc,
+                Value<DateTime?> nextAttemptAtUtc = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PendingPaymentIntentsCompanion.insert(
                 intentId: intentId,
@@ -1410,6 +1716,7 @@ class $$PendingPaymentIntentsTableTableManager
                 idempotencyKey: idempotencyKey,
                 status: status,
                 createdAtUtc: createdAtUtc,
+                nextAttemptAtUtc: nextAttemptAtUtc,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -1453,6 +1760,175 @@ typedef $$PendingPaymentIntentsTableProcessedTableManager =
       PendingPaymentIntent,
       PrefetchHooks Function()
     >;
+typedef $$PaymentRetryLimitsTableCreateCompanionBuilder =
+    PaymentRetryLimitsCompanion Function({
+      required String accountId,
+      required DateTime retryAtUtc,
+      Value<int> rowid,
+    });
+typedef $$PaymentRetryLimitsTableUpdateCompanionBuilder =
+    PaymentRetryLimitsCompanion Function({
+      Value<String> accountId,
+      Value<DateTime> retryAtUtc,
+      Value<int> rowid,
+    });
+
+class $$PaymentRetryLimitsTableFilterComposer
+    extends Composer<_$AppDatabase, $PaymentRetryLimitsTable> {
+  $$PaymentRetryLimitsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get accountId => $composableBuilder(
+    column: $table.accountId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get retryAtUtc => $composableBuilder(
+    column: $table.retryAtUtc,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PaymentRetryLimitsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PaymentRetryLimitsTable> {
+  $$PaymentRetryLimitsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get accountId => $composableBuilder(
+    column: $table.accountId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get retryAtUtc => $composableBuilder(
+    column: $table.retryAtUtc,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PaymentRetryLimitsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PaymentRetryLimitsTable> {
+  $$PaymentRetryLimitsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get retryAtUtc => $composableBuilder(
+    column: $table.retryAtUtc,
+    builder: (column) => column,
+  );
+}
+
+class $$PaymentRetryLimitsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PaymentRetryLimitsTable,
+          PaymentRetryLimit,
+          $$PaymentRetryLimitsTableFilterComposer,
+          $$PaymentRetryLimitsTableOrderingComposer,
+          $$PaymentRetryLimitsTableAnnotationComposer,
+          $$PaymentRetryLimitsTableCreateCompanionBuilder,
+          $$PaymentRetryLimitsTableUpdateCompanionBuilder,
+          (
+            PaymentRetryLimit,
+            BaseReferences<
+              _$AppDatabase,
+              $PaymentRetryLimitsTable,
+              PaymentRetryLimit
+            >,
+          ),
+          PaymentRetryLimit,
+          PrefetchHooks Function()
+        > {
+  $$PaymentRetryLimitsTableTableManager(
+    _$AppDatabase db,
+    $PaymentRetryLimitsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PaymentRetryLimitsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PaymentRetryLimitsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PaymentRetryLimitsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> accountId = const Value.absent(),
+                Value<DateTime> retryAtUtc = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PaymentRetryLimitsCompanion(
+                accountId: accountId,
+                retryAtUtc: retryAtUtc,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String accountId,
+                required DateTime retryAtUtc,
+                Value<int> rowid = const Value.absent(),
+              }) => PaymentRetryLimitsCompanion.insert(
+                accountId: accountId,
+                retryAtUtc: retryAtUtc,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PaymentRetryLimitsTable, PaymentRetryLimit>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $PaymentRetryLimitsTable,
+                    PaymentRetryLimit
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PaymentRetryLimitsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PaymentRetryLimitsTable,
+      PaymentRetryLimit,
+      $$PaymentRetryLimitsTableFilterComposer,
+      $$PaymentRetryLimitsTableOrderingComposer,
+      $$PaymentRetryLimitsTableAnnotationComposer,
+      $$PaymentRetryLimitsTableCreateCompanionBuilder,
+      $$PaymentRetryLimitsTableUpdateCompanionBuilder,
+      (
+        PaymentRetryLimit,
+        BaseReferences<
+          _$AppDatabase,
+          $PaymentRetryLimitsTable,
+          PaymentRetryLimit
+        >,
+      ),
+      PaymentRetryLimit,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1461,4 +1937,6 @@ class $AppDatabaseManager {
       $$CachedApiResponsesTableTableManager(_db, _db.cachedApiResponses);
   $$PendingPaymentIntentsTableTableManager get pendingPaymentIntents =>
       $$PendingPaymentIntentsTableTableManager(_db, _db.pendingPaymentIntents);
+  $$PaymentRetryLimitsTableTableManager get paymentRetryLimits =>
+      $$PaymentRetryLimitsTableTableManager(_db, _db.paymentRetryLimits);
 }
