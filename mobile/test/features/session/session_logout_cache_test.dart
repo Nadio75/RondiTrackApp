@@ -108,7 +108,7 @@ void main() {
     expect(otherCache, isNotNull);
     expect(otherCache!.stokvels.single.id, 'other-stokvel');
   });
-  test('API logout preserves pending payment intents', () async {
+  test('API logout clears only its own pending payment intents', () async {
     final database = AppDatabase.forTesting(NativeDatabase.memory());
     final cache = HomeCacheRepository(database);
     final service = FakeLogoutService();
@@ -157,6 +157,21 @@ void main() {
           ),
         );
 
+    await database
+        .into(database.pendingPaymentIntents)
+        .insert(
+          PendingPaymentIntentsCompanion.insert(
+            intentId: 'other-payment-intent',
+            accountId: 'other-payment-account',
+            stokvelId: 'other-stokvel',
+            cycleId: 'other-cycle',
+            memberId: 'other-payment-account',
+            amountInCents: 75000,
+            idempotencyKey: 'other-payment-key',
+            createdAtUtc: DateTime.utc(2026, 11, 18),
+          ),
+        );
+
     await session.logoutWithApi();
 
     expect(container.read(sessionProvider), isNull);
@@ -168,10 +183,10 @@ void main() {
         .get();
 
     expect(payments, hasLength(1));
-    expect(payments.single.accountId, accountId);
-    expect(payments.single.intentId, 'intent-logout-1');
-    expect(payments.single.amountInCents, 125050);
-    expect(payments.single.idempotencyKey, 'logout-preserved-key-1');
+    expect(payments.single.accountId, 'other-payment-account');
+    expect(payments.single.intentId, 'other-payment-intent');
+    expect(payments.single.amountInCents, 75000);
+    expect(payments.single.idempotencyKey, 'other-payment-key');
     expect(payments.single.status, 'pending');
   });
   test('backend logout failure leaves local session signed out', () async {

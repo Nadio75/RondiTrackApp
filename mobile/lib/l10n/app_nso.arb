@@ -108,5 +108,21 @@
     "updatedMinutesAgo":  "{count, plural, =1{E mpshafaditswe motsotso o tee o fetilego} other{E mpshafaditswe metsotso ye {count} e fetilego}}",
     "updatedHoursAgo":  "{count, plural, =1{E mpshafaditswe iri e tee e fetilego} other{E mpshafaditswe diiri tse {count} tse di fetilego}}",
     "updatedDaysAgo":  "{count, plural, =1{E mpshafaditswe letsatsi le tee le fetilego} other{E mpshafaditswe matsatsi a {count} a fetilego}}",
-    "errorReference":  "Tshupetso: {reference}"
+    "errorReference":  "Tshupetso: {reference}",
+  "recordContribution": "Rekhota moneelo",
+  "contributionAmount": "Tselete ya moneelo",
+  "contributionRecorded": "Moneelo o rekhotilwe",
+  "contributionPending": "Moneelo o bolokilwe gomme o emetse go romelwa",
+  "contributionRateLimited": "Ka kgopelo ema pele o leka gape",
+  "contributionAlreadyPaid": "Moneelo wo o setse o lefilwe",
+  "contributionCycleClosed": "Modikologo wo o tswaletswe",
+  "contributionConflict": "Go na le bothata ka moneelo. Lekola direkhoto tsa gago.",
+  "contributionRejected": "Moneelo ga se wa amogelwa",
+  "contributionAuthenticationRequired": "Tsena gape go tswela pele",
+  "contributionExpired": "Nako ya moneelo wo o letetswego e fedile. Lekola direkhoto tsa gago.",
+  "contributionReviewRequired": "Moneelo o swanetse go lekolwa pele o leka gape",
+  "contributionInvalidAmount": "Tsenya tselete ya maleba ya go feta lefela",
+  "contributionSaveFailed": "Ga go kgonege go boloka moneelo",
+  "contributionProcessing": "Moneelo o a sekasekwa",
+  "retryPendingContributions": "Leka gape meneelo ye e letetswego"
 }

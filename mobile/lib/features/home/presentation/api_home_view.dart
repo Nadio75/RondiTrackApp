@@ -1,3 +1,7 @@
+import '../../contributions/presentation/api_contribution_screen.dart';
+import '../../session/presentation/session_provider.dart';
+import '../../session/presentation/session_origin_provider.dart';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +14,9 @@ import '../domain/offline_home_provider.dart';
 import 'home_age_formatter.dart';
 
 class ApiHomeView extends ConsumerWidget {
-  const ApiHomeView({super.key});
+  const ApiHomeView({super.key, this.showOverviewHeading = true});
+
+  final bool showOverviewHeading;
 
   String? _safeReference(Object error) {
     if (error is! DioException) {
@@ -58,11 +64,13 @@ class ApiHomeView extends ConsumerWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(20),
         children: [
-          Text(
-            l10n.stokvelOverview,
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 20),
+          if (showOverviewHeading) ...[
+            Text(
+              l10n.stokvelOverview,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 20),
+          ],
           switch (home) {
             AsyncData(:final value) when value == null => Card(
               child: Padding(
@@ -154,6 +162,29 @@ class ApiHomeView extends ConsumerWidget {
                   Card(
                     child: ListTile(
                       title: Text(stokvel.name),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        final user = ref.read(sessionProvider);
+
+                        if (user == null ||
+                            ref.read(sessionOriginProvider) !=
+                                SessionOrigin.api) {
+                          return;
+                        }
+
+                        Navigator.of(context).push<void>(
+                          MaterialPageRoute<void>(
+                            builder: (_) => ApiContributionScreen(
+                              stokvelId: stokvel.id,
+                              stokvelName: stokvel.name,
+                              accountId: user.id,
+                              sessionGeneration: ref
+                                  .read(sessionProvider.notifier)
+                                  .sessionGeneration,
+                            ),
+                          ),
+                        );
+                      },
                       subtitle: Text(
                         l10n.roleLabel(localizedRole(l10n, stokvel.role)),
                       ),

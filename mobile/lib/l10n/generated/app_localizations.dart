@@ -751,6 +751,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reference: {reference}'**
   String errorReference(String reference);
+
+  /// No description provided for @recordContribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Record contribution'**
+  String get recordContribution;
+
+  /// No description provided for @contributionAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Contribution amount'**
+  String get contributionAmount;
+
+  /// No description provided for @contributionRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Contribution recorded'**
+  String get contributionRecorded;
+
+  /// No description provided for @contributionPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Contribution saved and waiting to be sent'**
+  String get contributionPending;
+
+  /// No description provided for @contributionRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait before trying again'**
+  String get contributionRateLimited;
+
+  /// No description provided for @contributionAlreadyPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'This contribution has already been paid'**
+  String get contributionAlreadyPaid;
+
+  /// No description provided for @contributionCycleClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'This cycle is closed'**
+  String get contributionCycleClosed;
+
+  /// No description provided for @contributionConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Contribution conflict. Check your records.'**
+  String get contributionConflict;
+
+  /// No description provided for @contributionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Contribution could not be accepted'**
+  String get contributionRejected;
+
+  /// No description provided for @contributionAuthenticationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in again to continue'**
+  String get contributionAuthenticationRequired;
+
+  /// No description provided for @contributionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending contribution expired. Check your records.'**
+  String get contributionExpired;
+
+  /// No description provided for @contributionReviewRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Contribution needs review before retrying'**
+  String get contributionReviewRequired;
+
+  /// No description provided for @contributionInvalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid positive amount'**
+  String get contributionInvalidAmount;
+
+  /// No description provided for @contributionSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save contribution'**
+  String get contributionSaveFailed;
+
+  /// No description provided for @contributionProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing contribution'**
+  String get contributionProcessing;
+
+  /// No description provided for @retryPendingContributions.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry pending contributions'**
+  String get retryPendingContributions;
 }
 
 class _AppLocalizationsDelegate

@@ -9,6 +9,8 @@ import '../../../core/responsive/app_breakpoints.dart';
 import '../../home/domain/home_summaries_provider.dart';
 import '../../session/presentation/session_provider.dart';
 import 'expanded_stokvel_layout.dart';
+import '../../home/presentation/api_home_view.dart';
+import '../../session/presentation/session_origin_provider.dart';
 
 class StokvelsScreen extends ConsumerWidget {
   const StokvelsScreen({super.key});
@@ -16,6 +18,21 @@ class StokvelsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final origin = ref.watch(sessionOriginProvider);
+
+    if (origin == SessionOrigin.api) {
+      final apiUser = ref.watch(sessionProvider);
+
+      if (apiUser == null) {
+        return Scaffold(body: Center(child: Text(l10n.pleaseSignIn)));
+      }
+
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.myStokvels)),
+        body: const ApiHomeView(showOverviewHeading: false),
+      );
+    }
+
     final width = MediaQuery.sizeOf(context).width;
 
     if (AppBreakpoints.classify(width) == WindowSizeClass.expanded) {

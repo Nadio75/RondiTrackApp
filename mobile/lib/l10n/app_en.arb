@@ -220,5 +220,21 @@
                                                                    "type":  "String"
                                                                }
                                              }
-                        }
+                        },
+  "recordContribution": "Record contribution",
+  "contributionAmount": "Contribution amount",
+  "contributionRecorded": "Contribution recorded",
+  "contributionPending": "Contribution saved and waiting to be sent",
+  "contributionRateLimited": "Please wait before trying again",
+  "contributionAlreadyPaid": "This contribution has already been paid",
+  "contributionCycleClosed": "This cycle is closed",
+  "contributionConflict": "Contribution conflict. Check your records.",
+  "contributionRejected": "Contribution could not be accepted",
+  "contributionAuthenticationRequired": "Sign in again to continue",
+  "contributionExpired": "Pending contribution expired. Check your records.",
+  "contributionReviewRequired": "Contribution needs review before retrying",
+  "contributionInvalidAmount": "Enter a valid positive amount",
+  "contributionSaveFailed": "Unable to save contribution",
+  "contributionProcessing": "Processing contribution",
+  "retryPendingContributions": "Retry pending contributions"
 }

@@ -397,4 +397,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String errorReference(String reference) {
     return 'Reference: $reference';
   }
+
+  @override
+  String get recordContribution => 'Record contribution';
+
+  @override
+  String get contributionAmount => 'Contribution amount';
+
+  @override
+  String get contributionRecorded => 'Contribution recorded';
+
+  @override
+  String get contributionPending => 'Contribution saved and waiting to be sent';
+
+  @override
+  String get contributionRateLimited => 'Please wait before trying again';
+
+  @override
+  String get contributionAlreadyPaid =>
+      'This contribution has already been paid';
+
+  @override
+  String get contributionCycleClosed => 'This cycle is closed';
+
+  @override
+  String get contributionConflict =>
+      'Contribution conflict. Check your records.';
+
+  @override
+  String get contributionRejected => 'Contribution could not be accepted';
+
+  @override
+  String get contributionAuthenticationRequired => 'Sign in again to continue';
+
+  @override
+  String get contributionExpired =>
+      'Pending contribution expired. Check your records.';
+
+  @override
+  String get contributionReviewRequired =>
+      'Contribution needs review before retrying';
+
+  @override
+  String get contributionInvalidAmount => 'Enter a valid positive amount';
+
+  @override
+  String get contributionSaveFailed => 'Unable to save contribution';
+
+  @override
+  String get contributionProcessing => 'Processing contribution';
+
+  @override
+  String get retryPendingContributions => 'Retry pending contributions';
 }

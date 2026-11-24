@@ -406,4 +406,57 @@ class AppLocalizationsNso extends AppLocalizations {
   String errorReference(String reference) {
     return 'Tshupetso: $reference';
   }
+
+  @override
+  String get recordContribution => 'Rekhota moneelo';
+
+  @override
+  String get contributionAmount => 'Tselete ya moneelo';
+
+  @override
+  String get contributionRecorded => 'Moneelo o rekhotilwe';
+
+  @override
+  String get contributionPending =>
+      'Moneelo o bolokilwe gomme o emetse go romelwa';
+
+  @override
+  String get contributionRateLimited => 'Ka kgopelo ema pele o leka gape';
+
+  @override
+  String get contributionAlreadyPaid => 'Moneelo wo o setse o lefilwe';
+
+  @override
+  String get contributionCycleClosed => 'Modikologo wo o tswaletswe';
+
+  @override
+  String get contributionConflict =>
+      'Go na le bothata ka moneelo. Lekola direkhoto tsa gago.';
+
+  @override
+  String get contributionRejected => 'Moneelo ga se wa amogelwa';
+
+  @override
+  String get contributionAuthenticationRequired => 'Tsena gape go tswela pele';
+
+  @override
+  String get contributionExpired =>
+      'Nako ya moneelo wo o letetswego e fedile. Lekola direkhoto tsa gago.';
+
+  @override
+  String get contributionReviewRequired =>
+      'Moneelo o swanetse go lekolwa pele o leka gape';
+
+  @override
+  String get contributionInvalidAmount =>
+      'Tsenya tselete ya maleba ya go feta lefela';
+
+  @override
+  String get contributionSaveFailed => 'Ga go kgonege go boloka moneelo';
+
+  @override
+  String get contributionProcessing => 'Moneelo o a sekasekwa';
+
+  @override
+  String get retryPendingContributions => 'Leka gape meneelo ye e letetswego';
 }
