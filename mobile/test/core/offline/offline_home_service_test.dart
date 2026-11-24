@@ -247,8 +247,16 @@ void main() {
       'message': 'Service unavailable',
     });
 
-    final snapshot = await service().loadWithFallback('user-1');
+    await expectLater(
+      service().loadWithFallback('user-1'),
+      throwsA(isA<DioException>()),
+    );
 
-    expect(snapshot, isNull);
+    expect(await cache.load('user-1'), isNull);
+
+    final otherAccount = await cache.load('user-2');
+
+    expect(otherAccount, isNotNull);
+    expect(otherAccount!.stokvels.single.id, 'private-2');
   });
 }

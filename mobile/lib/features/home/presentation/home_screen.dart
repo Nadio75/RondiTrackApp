@@ -76,7 +76,18 @@ class HomeScreen extends ConsumerWidget {
               AsyncData(:final value) when value.isEmpty => Card(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text(l10n.noStokvels),
+                  child: Column(
+                    children: [
+                      Text(l10n.noStokvels),
+                      const SizedBox(height: 16),
+                      FilledButton(
+                        onPressed: () {
+                          const StokvelsRoute().go(context);
+                        },
+                        child: Text(l10n.viewStokvels),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               AsyncData(:final value) => Column(

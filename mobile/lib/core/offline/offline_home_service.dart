@@ -55,8 +55,10 @@ class OfflineHomeService {
     return snapshot;
   }
 
-  Future<CachedHomeSnapshot?> loadOffline(String accountId) {
-    return cache.load(accountId);
+  Future<CachedHomeSnapshot?> loadOffline(String accountId) async {
+    final snapshot = await cache.load(accountId);
+
+    return snapshot?.withSource(HomeDataSource.offlineCache);
   }
 
   Future<CachedHomeSnapshot?> loadWithFallback(
@@ -68,22 +70,45 @@ class OfflineHomeService {
     } on DioException catch (error) {
       final status = error.response?.statusCode;
 
-      // Never silently show cached data for authorization failures.
       if (status == 401 || status == 403) {
         rethrow;
       }
 
-      // Offline fallback is only appropriate for network failures
-      // or temporary server-side problems.
-      if (status == null || status >= 500 || status == 429) {
-        if (isSessionCurrent != null && !isSessionCurrent()) {
-          throw StateError('Session changed during Home refresh.');
-        }
+      final networkUnavailable =
+          status == null &&
+          const {
+            DioExceptionType.connectionError,
+            DioExceptionType.connectionTimeout,
+            DioExceptionType.sendTimeout,
+            DioExceptionType.receiveTimeout,
+          }.contains(error.type);
 
-        return loadOffline(accountId);
+      final serverUnavailable =
+          status != null && (status >= 500 || status == 429);
+
+      if (!networkUnavailable && !serverUnavailable) {
+        rethrow;
       }
 
-      rethrow;
+      if (isSessionCurrent != null && !isSessionCurrent()) {
+        throw StateError('Session changed during Home refresh.');
+      }
+
+      final snapshot = await cache.load(accountId);
+
+      if (isSessionCurrent != null && !isSessionCurrent()) {
+        throw StateError('Session changed during Home refresh.');
+      }
+
+      if (snapshot == null) {
+        rethrow;
+      }
+
+      return snapshot.withSource(
+        networkUnavailable
+            ? HomeDataSource.offlineCache
+            : HomeDataSource.unavailableCache,
+      );
     }
   }
 }

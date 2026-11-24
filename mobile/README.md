@@ -592,3 +592,41 @@ The original production code was restored and verified.
 
 Evidence is stored under submission_evidence in the
 RondiTrack_Assignment_12_1_Evidence/mutations directory.
+
+### Home states and accessibility verification
+
+The Home interface distinguishes live data, offline cached data,
+and cached data displayed after a server failure.
+
+Cached data retains its original update timestamp. Relative cache
+age is localized in English and Sepedi.
+
+The interface displays a bounded correlation reference rather than
+raw API diagnostic details.
+
+Automated verification:
+
+- Existing API Home widget tests: 5 passed.
+- Offline database and cache tests: 18 passed.
+- Localized Home age formatter tests: 10 passed.
+- New Home state and accessibility tests: 12 passed.
+- Full regression suite: 384 passed.
+- Static analysis: no issues found.
+
+Accessibility checks cover cached and error states in both light
+and dark themes:
+
+- androidTapTargetGuideline
+- labeledTapTargetGuideline
+- textContrastGuideline
+
+Semantics handles are disposed using try/finally.
+
+The empty-state navigation test uses a controlled GoRouter
+destination. Full application navigation still requires verification.
+
+Automated accessibility checks do not replace real TalkBack
+testing or manual verification on a physical device.
+
+Manual Chrome verification of English, Sepedi, and cached Home
+states remains part of final submission evidence.

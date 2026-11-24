@@ -347,4 +347,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageSaveError => 'Could not save language. Try again.';
+
+  @override
+  String get viewStokvels => 'View stokvels';
+
+  @override
+  String get offlineSavedData => 'Offline - showing saved data';
+
+  @override
+  String get cachedSavedData => 'Unable to refresh - showing saved data';
+
+  @override
+  String get updatedJustNow => 'Updated just now';
+
+  @override
+  String updatedMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Updated $count minutes ago',
+      one: 'Updated 1 minute ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String updatedHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Updated $count hours ago',
+      one: 'Updated 1 hour ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String updatedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Updated $count days ago',
+      one: 'Updated 1 day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String errorReference(String reference) {
+    return 'Reference: $reference';
+  }
 }

@@ -354,4 +354,56 @@ class AppLocalizationsNso extends AppLocalizations {
 
   @override
   String get languageSaveError => 'Ga go kgonege go boloka polelo. Leka gape.';
+
+  @override
+  String get viewStokvels => 'Lebelela mekgatlo ya poloko';
+
+  @override
+  String get offlineSavedData =>
+      'Ga go na kgokagano - go bontshwa tshedimoso ye e bolokilwego';
+
+  @override
+  String get cachedSavedData =>
+      'Ga go kgonege go mpshafatsa - go bontshwa tshedimoso ye e bolokilwego';
+
+  @override
+  String get updatedJustNow => 'E mpshafaditswe gona bjale';
+
+  @override
+  String updatedMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'E mpshafaditswe metsotso ye $count e fetilego',
+      one: 'E mpshafaditswe motsotso o tee o fetilego',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String updatedHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'E mpshafaditswe diiri tse $count tse di fetilego',
+      one: 'E mpshafaditswe iri e tee e fetilego',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String updatedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'E mpshafaditswe matsatsi a $count a fetilego',
+      one: 'E mpshafaditswe letsatsi le tee le fetilego',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String errorReference(String reference) {
+    return 'Tshupetso: $reference';
+  }
 }

@@ -703,6 +703,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not save language. Try again.'**
   String get languageSaveError;
+
+  /// No description provided for @viewStokvels.
+  ///
+  /// In en, this message translates to:
+  /// **'View stokvels'**
+  String get viewStokvels;
+
+  /// No description provided for @offlineSavedData.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline - showing saved data'**
+  String get offlineSavedData;
+
+  /// No description provided for @cachedSavedData.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to refresh - showing saved data'**
+  String get cachedSavedData;
+
+  /// No description provided for @updatedJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated just now'**
+  String get updatedJustNow;
+
+  /// No description provided for @updatedMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Updated 1 minute ago} other{Updated {count} minutes ago}}'**
+  String updatedMinutesAgo(int count);
+
+  /// No description provided for @updatedHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Updated 1 hour ago} other{Updated {count} hours ago}}'**
+  String updatedHoursAgo(int count);
+
+  /// No description provided for @updatedDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Updated 1 day ago} other{Updated {count} days ago}}'**
+  String updatedDaysAgo(int count);
+
+  /// No description provided for @errorReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference: {reference}'**
+  String errorReference(String reference);
 }
 
 class _AppLocalizationsDelegate

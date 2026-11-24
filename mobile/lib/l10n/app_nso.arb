@@ -100,5 +100,13 @@
     "invitationUnavailable":  "Go amogela taletšo go tla kgonega ge tirelo ya ditaletšo e kgokagantšwe.",
     "restoringSession":  "Go tsošološwa lenaneo la gago...",
     "restoreSessionError":  "Ga go kgonege go tsošološa lenaneo la gago.",
-    "languageSaveError":  "Ga go kgonege go boloka polelo. Leka gape."
+    "languageSaveError":  "Ga go kgonege go boloka polelo. Leka gape.",
+    "viewStokvels":  "Lebelela mekgatlo ya poloko",
+    "offlineSavedData":  "Ga go na kgokagano - go bontshwa tshedimoso ye e bolokilwego",
+    "cachedSavedData":  "Ga go kgonege go mpshafatsa - go bontshwa tshedimoso ye e bolokilwego",
+    "updatedJustNow":  "E mpshafaditswe gona bjale",
+    "updatedMinutesAgo":  "{count, plural, =1{E mpshafaditswe motsotso o tee o fetilego} other{E mpshafaditswe metsotso ye {count} e fetilego}}",
+    "updatedHoursAgo":  "{count, plural, =1{E mpshafaditswe iri e tee e fetilego} other{E mpshafaditswe diiri tse {count} tse di fetilego}}",
+    "updatedDaysAgo":  "{count, plural, =1{E mpshafaditswe letsatsi le tee le fetilego} other{E mpshafaditswe matsatsi a {count} a fetilego}}",
+    "errorReference":  "Tshupetso: {reference}"
 }

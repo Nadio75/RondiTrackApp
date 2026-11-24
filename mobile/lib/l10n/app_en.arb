@@ -184,5 +184,41 @@
     "invitationUnavailable":  "Invitation acceptance will be available when the invitation service is connected.",
     "restoringSession":  "Restoring your session...",
     "restoreSessionError":  "Unable to restore your session.",
-    "languageSaveError":  "Could not save language. Try again."
+    "languageSaveError":  "Could not save language. Try again.",
+    "viewStokvels":  "View stokvels",
+    "offlineSavedData":  "Offline - showing saved data",
+    "cachedSavedData":  "Unable to refresh - showing saved data",
+    "updatedJustNow":  "Updated just now",
+    "updatedMinutesAgo":  "{count, plural, =1{Updated 1 minute ago} other{Updated {count} minutes ago}}",
+    "updatedHoursAgo":  "{count, plural, =1{Updated 1 hour ago} other{Updated {count} hours ago}}",
+    "updatedDaysAgo":  "{count, plural, =1{Updated 1 day ago} other{Updated {count} days ago}}",
+    "errorReference":  "Reference: {reference}",
+    "@updatedMinutesAgo":  {
+                               "placeholders":  {
+                                                    "count":  {
+                                                                  "type":  "int"
+                                                              }
+                                                }
+                           },
+    "@updatedHoursAgo":  {
+                             "placeholders":  {
+                                                  "count":  {
+                                                                "type":  "int"
+                                                            }
+                                              }
+                         },
+    "@updatedDaysAgo":  {
+                            "placeholders":  {
+                                                 "count":  {
+                                                               "type":  "int"
+                                                           }
+                                             }
+                        },
+    "@errorReference":  {
+                            "placeholders":  {
+                                                 "reference":  {
+                                                                   "type":  "String"
+                                                               }
+                                             }
+                        }
 }
