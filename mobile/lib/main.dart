@@ -7,10 +7,20 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'app/ronditrack_root.dart';
 
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import 'core/notifications/local_notification_service.dart';
+import 'core/notifications/local_notification_provider.dart';
+import 'core/notifications/push_bootstrap.dart';
+import 'core/notifications/push_destination.dart';
+import 'core/notifications/push_providers.dart';
+
 Future<void> main() async {
   const flavor = String.fromEnvironment('APP_FLAVOR');
   const apiUrl = String.fromEnvironment('API_BASE_URL');
   const sentryDsn = String.fromEnvironment('SENTRY_DSN');
+  const sentryRelease = String.fromEnvironment('SENTRY_RELEASE');
+  const sentryDist = String.fromEnvironment('SENTRY_DIST');
 
   validateAppConfig(
     flavor: flavor,
@@ -19,8 +29,54 @@ Future<void> main() async {
     runningOnWeb: kIsWeb,
   );
 
+  Future<void> startApplication() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    final gateway = await initializePushGateway();
+    final message = await gateway.initialMessage();
+
+    LocalNotificationService localNotifications =
+        const DisabledLocalNotificationService();
+
+    PushDestination? localDestination;
+
+    if (gateway.enabled &&
+        !kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android) {
+      final service = AndroidLocalNotificationService(
+        FlutterLocalNotificationsPlugin(),
+      );
+
+      try {
+        localDestination = await service.initialize();
+        localNotifications = service;
+      } catch (_) {
+        service.dispose();
+        // Local notification failure must not prevent startup.
+      }
+    }
+
+    final destination = message == null
+        ? localDestination
+        : PushDestination.parse(message) ?? localDestination;
+
+    runApp(
+      ProviderScope(
+        overrides: [
+          pushGatewayProvider.overrideWithValue(gateway),
+          localNotificationServiceProvider.overrideWith((ref) {
+            ref.onDispose(localNotifications.dispose);
+            return localNotifications;
+          }),
+          initialPushLocationProvider.overrideWithValue(destination?.location),
+        ],
+        child: const RondiTrackApp(),
+      ),
+    );
+  }
+
   if (sentryDsn.isEmpty) {
-    runApp(const ProviderScope(child: RondiTrackApp()));
+    await startApplication();
     return;
   }
 
@@ -28,6 +84,14 @@ Future<void> main() async {
     (options) {
       options.dsn = sentryDsn;
       options.environment = flavor;
+
+      if (sentryRelease.isNotEmpty) {
+        options.release = sentryRelease;
+      }
+
+      if (sentryDist.isNotEmpty) {
+        options.dist = sentryDist;
+      }
       options.sendDefaultPii = false;
       options.tracesSampleRate = 0.0;
       options.attachScreenshot = false;
@@ -47,7 +111,7 @@ Future<void> main() async {
       };
     },
     appRunner: () async {
-      runApp(const ProviderScope(child: RondiTrackApp()));
+      await startApplication();
 
       if (kDebugMode &&
           flavor == 'dev' &&

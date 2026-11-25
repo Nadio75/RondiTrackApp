@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/localization_context.dart';
 import '../../../core/money/parse_rands.dart';
+import '../../../core/notifications/notification_permission_prompt.dart';
+import '../../../core/notifications/push_providers.dart';
+import '../../../core/notifications/local_notification_provider.dart';
 import '../../../core/offline/payment_outbox_service.dart';
 import '../../session/presentation/session_provider.dart';
 import '../../session/presentation/session_origin_provider.dart';
@@ -15,11 +18,13 @@ class ContributionForm extends ConsumerStatefulWidget {
     required this.stokvelId,
     required this.cycleId,
     required this.memberId,
+    this.requiredAmount,
   });
 
   final String stokvelId;
   final String cycleId;
   final String memberId;
+  final double? requiredAmount;
 
   @override
   ConsumerState<ContributionForm> createState() => _ContributionFormState();
@@ -27,7 +32,9 @@ class ContributionForm extends ConsumerStatefulWidget {
 
 class _ContributionFormState extends ConsumerState<ContributionForm> {
   final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController();
+  late final _amountController = TextEditingController(
+    text: widget.requiredAmount?.toStringAsFixed(2) ?? '',
+  );
 
   PaymentOutcome? _outcome;
   bool _saveFailed = false;
@@ -71,7 +78,20 @@ class _ContributionFormState extends ConsumerState<ContributionForm> {
       });
 
       if (outcome == PaymentOutcome.recorded) {
-        _amountController.clear();
+        if (widget.requiredAmount == null) _amountController.clear();
+
+        ref.read(notificationRefreshProvider.notifier).refresh();
+
+        await NotificationPermissionPrompt.offer(
+          context: context,
+          gateway: ref.read(pushGatewayProvider),
+          isSessionCurrent: () =>
+              mounted &&
+              ref.read(sessionProvider)?.id == accountId &&
+              ref.read(sessionProvider.notifier).sessionGeneration ==
+                  generation &&
+              ref.read(sessionOriginProvider) == SessionOrigin.api,
+        );
       }
     } catch (_) {
       if (!mounted) return;
@@ -111,14 +131,16 @@ class _ContributionFormState extends ConsumerState<ContributionForm> {
             stokvelId: widget.stokvelId,
             cycleId: widget.cycleId,
             memberId: widget.memberId,
-            amount: _amountController.text,
+            amount:
+                widget.requiredAmount?.toStringAsFixed(2) ??
+                _amountController.text,
           );
 
       if (!mounted) return;
 
       if (ref.read(sessionProvider)?.id != accountId ||
           ref.read(sessionProvider.notifier).sessionGeneration != generation) {
-        _amountController.clear();
+        if (widget.requiredAmount == null) _amountController.clear();
         return;
       }
 
@@ -127,7 +149,20 @@ class _ContributionFormState extends ConsumerState<ContributionForm> {
       });
 
       if (outcome == PaymentOutcome.recorded) {
-        _amountController.clear();
+        if (widget.requiredAmount == null) _amountController.clear();
+
+        ref.read(notificationRefreshProvider.notifier).refresh();
+
+        await NotificationPermissionPrompt.offer(
+          context: context,
+          gateway: ref.read(pushGatewayProvider),
+          isSessionCurrent: () =>
+              mounted &&
+              ref.read(sessionProvider)?.id == accountId &&
+              ref.read(sessionProvider.notifier).sessionGeneration ==
+                  generation &&
+              ref.read(sessionOriginProvider) == SessionOrigin.api,
+        );
       }
     } catch (_) {
       if (!mounted) return;
@@ -175,15 +210,29 @@ class _ContributionFormState extends ConsumerState<ContributionForm> {
           TextFormField(
             key: const Key('contribution_amount'),
             controller: _amountController,
+            readOnly: widget.requiredAmount != null,
             enabled: !processing && !finished,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: l10n.contributionAmount,
               prefixText: 'R ',
+              suffixIcon: widget.requiredAmount != null
+                  ? const Icon(Icons.lock_outline)
+                  : null,
+              helperText: widget.requiredAmount != null
+                  ? (Localizations.localeOf(context).languageCode == 'nso'
+                        ? 'Moneelo o beilwe ke stokvel.'
+                        : 'Your monthly contribution is fixed.')
+                  : null,
               border: const OutlineInputBorder(),
             ),
             validator: (value) {
               final parsed = parseRandsStrict(value ?? '');
+
+              if (widget.requiredAmount != null &&
+                  value != widget.requiredAmount!.toStringAsFixed(2)) {
+                return l10n.contributionInvalidAmount;
+              }
 
               if (parsed is! RandParseSuccess ||
                   parsed.amount.value <= 0 ||

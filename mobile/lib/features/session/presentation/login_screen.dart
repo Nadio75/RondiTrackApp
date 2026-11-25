@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'session_provider.dart';
+import 'registration_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -139,6 +140,46 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Text(l10n.login),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  key: const Key('open_registration'),
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          final email = await Navigator.of(context)
+                              .push<String>(
+                                MaterialPageRoute(
+                                  builder: (_) => const RegistrationScreen(),
+                                ),
+                              );
+
+                          if (!context.mounted || email == null) return;
+
+                          emailController.text = email;
+                          passwordController.clear();
+
+                          setState(() => errorMessage = null);
+
+                          final nso =
+                              Localizations.localeOf(context).languageCode ==
+                              'nso';
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                nso
+                                    ? 'Akhaonto e hlamilwe. Tsena.'
+                                    : 'Account created. You can now sign in.',
+                              ),
+                            ),
+                          );
+                        },
+                  child: Text(
+                    Localizations.localeOf(context).languageCode == 'nso'
+                        ? 'Hlama akhaonto'
+                        : 'Create an account',
                   ),
                 ),
               ],

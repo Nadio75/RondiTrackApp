@@ -1,4 +1,4 @@
-import '../../contributions/presentation/api_contribution_screen.dart';
+import '../../stokvel/presentation/api_stokvel_management_screen.dart';
 import '../../session/presentation/session_provider.dart';
 import '../../session/presentation/session_origin_provider.dart';
 
@@ -174,9 +174,10 @@ class ApiHomeView extends ConsumerWidget {
 
                         Navigator.of(context).push<void>(
                           MaterialPageRoute<void>(
-                            builder: (_) => ApiContributionScreen(
+                            builder: (_) => ApiStokvelManagementScreen(
                               stokvelId: stokvel.id,
                               stokvelName: stokvel.name,
+                              role: stokvel.role,
                               accountId: user.id,
                               sessionGeneration: ref
                                   .read(sessionProvider.notifier)

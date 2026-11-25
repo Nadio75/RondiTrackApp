@@ -54,6 +54,8 @@ void main() {
       ),
     );
 
+    await tester.ensureVisible(find.text('Thabo - Member'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Thabo - Member'));
     await tester.pump();
 
@@ -66,6 +68,8 @@ void main() {
 
     expect(container.read(sessionProvider)?.email, 'naledi@example.com');
 
+    await tester.ensureVisible(find.text('Lerato - Treasurer'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Lerato - Treasurer'));
     await tester.pump();
 

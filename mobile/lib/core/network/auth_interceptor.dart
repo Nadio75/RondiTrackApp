@@ -36,6 +36,7 @@ class AuthInterceptor extends Interceptor {
     final path = requestUri.path;
 
     final isAuthEndpoint =
+        path == '/api/v1/auth/register' ||
         path == '/api/v1/auth/login' ||
         path == '/api/v1/auth/refresh' ||
         path == '/api/v1/auth/logout';

@@ -60,3 +60,13 @@ app.*.map.json
 *.jks
 *.keystore
 **/key.properties
+
+*.p12
+
+key.properties
+
+key.properties.mutation
+
+/release-output/
+
+google-services.json

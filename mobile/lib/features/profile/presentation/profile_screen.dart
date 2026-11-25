@@ -1,3 +1,4 @@
+import 'app_version_tile.dart';
 import '../../../core/localization/localization_context.dart';
 import '../../../core/localization/language_selector.dart';
 
@@ -18,76 +19,82 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.profile)),
-      body: ListView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        children: [
-          const CircleAvatar(radius: 36, child: Icon(Icons.person, size: 36)),
-          const SizedBox(height: 20),
-          Text(
-            user?.name ?? l10n.guest,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(user?.email ?? '', textAlign: TextAlign.center),
-          const SizedBox(height: 24),
-          const Divider(),
-          const SizedBox(height: 12),
-          const LanguageSelector(),
-          if (kDebugMode && ref.watch(demoPersonasEnabledProvider)) ...[
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const CircleAvatar(radius: 36, child: Icon(Icons.person, size: 36)),
+            const SizedBox(height: 20),
+            Text(
+              user?.name ?? l10n.guest,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(user?.email ?? '', textAlign: TextAlign.center),
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 12),
-            Text(
-              'Development personas',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Switch demo accounts to verify role-based access. '
-              'Available in debug builds only.',
-            ),
+            const LanguageSelector(),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                OutlinedButton(
-                  onPressed: () {
-                    ref
-                        .read(sessionProvider.notifier)
-                        .login('lerato@example.com', 'testpassword123');
-                  },
-                  child: const Text('Lerato - Treasurer'),
-                ),
-                OutlinedButton(
-                  onPressed: () {
-                    ref
-                        .read(sessionProvider.notifier)
-                        .login('thabo@example.com', 'testpassword123');
-                  },
-                  child: const Text('Thabo - Member'),
-                ),
-                OutlinedButton(
-                  onPressed: () {
-                    ref
-                        .read(sessionProvider.notifier)
-                        .login('naledi@example.com', 'testpassword123');
-                  },
-                  child: const Text('Naledi - Non-member'),
-                ),
-              ],
+            const Divider(),
+            const AppVersionTile(),
+            if (kDebugMode && ref.watch(demoPersonasEnabledProvider)) ...[
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 12),
+              Text(
+                'Development personas',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Switch demo accounts to verify role-based access. '
+                'Available in debug builds only.',
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton(
+                    onPressed: () {
+                      ref
+                          .read(sessionProvider.notifier)
+                          .login('lerato@example.com', 'testpassword123');
+                    },
+                    child: const Text('Lerato - Treasurer'),
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      ref
+                          .read(sessionProvider.notifier)
+                          .login('thabo@example.com', 'testpassword123');
+                    },
+                    child: const Text('Thabo - Member'),
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      ref
+                          .read(sessionProvider.notifier)
+                          .login('naledi@example.com', 'testpassword123');
+                    },
+                    child: const Text('Naledi - Non-member'),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () {
+                ref.read(sessionProvider.notifier).logoutWithApi();
+              },
+              icon: const Icon(Icons.logout),
+              label: Text(l10n.signOut),
             ),
           ],
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: () {
-              ref.read(sessionProvider.notifier).logoutWithApi();
-            },
-            icon: const Icon(Icons.logout),
-            label: Text(l10n.signOut),
-          ),
-        ],
+        ),
       ),
     );
   }

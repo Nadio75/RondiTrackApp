@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/localization_context.dart';
@@ -46,12 +47,14 @@ class ApiContributionScreen extends ConsumerWidget {
     super.key,
     required this.stokvelId,
     required this.stokvelName,
+    required this.requiredAmount,
     required this.accountId,
     required this.sessionGeneration,
   });
 
   final String stokvelId;
   final String stokvelName;
+  final double requiredAmount;
   final String accountId;
   final int sessionGeneration;
 
@@ -122,9 +125,25 @@ class ApiContributionScreen extends ConsumerWidget {
                                   stokvelId: stokvelId,
                                   cycleId: cycle.id,
                                   memberId: accountId,
+                                  requiredAmount: requiredAmount,
                                 )
                               else
                                 Text(l10n.unknown),
+                              const SizedBox(height: 12),
+                              OutlinedButton.icon(
+                                key: const Key('view_cycle_details'),
+                                onPressed: () => context.push(
+                                  '/stokvels/$stokvelId/cycles/${cycle.id}',
+                                ),
+                                icon: const Icon(Icons.receipt_long_outlined),
+                                label: Text(
+                                  Localizations.localeOf(context)
+                                              .languageCode ==
+                                          'nso'
+                                      ? 'Bona dintlha tsa modikologo'
+                                      : 'View cycle details',
+                                ),
+                              ),
                             ],
                           ),
                         ),

@@ -1,3 +1,10 @@
+import 'package:flutter/foundation.dart';
+
+import 'dart:async';
+
+import '../../../core/network/dio_provider.dart';
+import '../../../core/notifications/push_providers.dart';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +16,30 @@ import 'session_origin_provider.dart';
 
 class SessionNotifier extends Notifier<DemoUser?> {
   int _sessionGeneration = 0;
+
+  void _startPushRegistration() {
+    final gateway = ref.read(pushGatewayProvider);
+
+    debugPrint('[RondiTrackPush] Session gateway enabled=${gateway.enabled}');
+
+    if (!gateway.enabled) return;
+
+    final auth = ref.read(apiAuthClientProvider);
+    final coordinator = ref.read(deviceRegistrationCoordinatorProvider);
+
+    final generation = auth.sessionGeneration;
+    final uiGeneration = _sessionGeneration;
+
+    unawaited(
+      coordinator.start(
+        generation: generation,
+        isSessionCurrent: () =>
+            auth.isAuthenticated &&
+            auth.sessionGeneration == generation &&
+            _sessionGeneration == uiGeneration,
+      ),
+    );
+  }
 
   /// Changes whenever a login, restoration, or logout starts.
   int get sessionGeneration => _sessionGeneration;
@@ -47,6 +78,7 @@ class SessionNotifier extends Notifier<DemoUser?> {
     state = user;
     ref.read(sessionOriginProvider.notifier).markApi();
     ref.read(sessionLifecycleProvider.notifier).markSignedIn();
+    _startPushRegistration();
   }
 
   /// Attempts to restore an existing backend session.
@@ -69,6 +101,7 @@ class SessionNotifier extends Notifier<DemoUser?> {
       state = user;
       ref.read(sessionOriginProvider.notifier).markApi();
       ref.read(sessionLifecycleProvider.notifier).markSignedIn();
+      _startPushRegistration();
     } on DioException catch (error) {
       if (generation != _sessionGeneration) return;
 
@@ -100,6 +133,15 @@ class SessionNotifier extends Notifier<DemoUser?> {
     final accountId = state?.id;
     final service = ref.read(apiSessionServiceProvider);
 
+    final gateway = ref.read(pushGatewayProvider);
+    final auth = gateway.enabled ? ref.read(apiAuthClientProvider) : null;
+
+    final coordinator = gateway.enabled
+        ? ref.read(deviceRegistrationCoordinatorProvider)
+        : null;
+
+    final generation = auth?.sessionGeneration;
+
     // Immediately invalidate in-flight requests and signed-in UI.
     logout();
 
@@ -115,8 +157,24 @@ class SessionNotifier extends Notifier<DemoUser?> {
       }
     }
 
+    if (coordinator != null &&
+        generation != null &&
+        auth?.sessionGeneration == generation) {
+      try {
+        final pushCleanup = coordinator.stop(generation: generation);
+
+        await pushCleanup.timeout(const Duration(seconds: 10));
+      } catch (_) {
+        // Notification cleanup must not prevent logout.
+      }
+    }
+
     // Always attempt backend logout, even if local cleanup fails.
-    await service.logout();
+    if (auth != null && generation != null) {
+      await auth.logoutIfGenerationMatches(generation);
+    } else {
+      await service.logout();
+    }
 
     if (cleanupError != null) {
       Error.throwWithStackTrace(cleanupError, cleanupStackTrace!);

@@ -1,3 +1,5 @@
+import '../../session/presentation/session_origin_provider.dart';
+import 'api_cycle_details_screen.dart';
 import '../../../core/localization/localization_context.dart';
 
 import 'package:flutter/material.dart';
@@ -20,6 +22,13 @@ class CycleDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final apiUser = ref.watch(sessionProvider);
+    final apiOrigin = ref.watch(sessionOriginProvider);
+
+    if (apiUser != null && apiOrigin == SessionOrigin.api) {
+      return ApiCycleDetailsScreen(stokvelId: stokvelId, cycleId: cycleId);
+    }
+
     final l10n = context.l10n;
     final user = ref.watch(sessionProvider);
     final repository = ref.watch(stokvelRepositoryProvider);
