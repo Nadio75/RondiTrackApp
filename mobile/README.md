@@ -716,3 +716,125 @@ were not overwritten during mutation testing.
 
 Approved reference images, failure comparison images and red/green
 test logs are stored in the Assignment 12.1 submission evidence.
+
+## Notifications and Releases - Assignment 12.2
+
+### 1. Notification events and recipients
+
+- Contribution confirmation: notify the affected member's registered devices after successful database persistence.
+- Cycle closing and payout: retrieve updated state from the API.
+- Additional push events are deferred.
+- Notification failures must not reverse successful transactions.
+- Idempotent replays must not trigger duplicate notifications.
+
+### 2. Notification content and privacy
+
+Title: RondiTrack
+Body: You have a new update.
+
+Allowed data fields:
+- type
+- stokvelId
+- cycleId
+
+Never include names, email addresses, contribution amounts,
+stokvel names or financial decisions.
+
+Firebase, operating systems and people viewing locked phones
+may see notification content.
+
+Installation IDs must not appear in application logs.
+
+### 3. Notification lifecycle
+
+- Foreground: display a local notification and refresh data.
+- Background: notification taps open the relevant cycle.
+- Terminated: resolve the initial notification before rendering.
+- Signed out: authenticate before opening the cycle.
+- Non-member: display a safe not-found state.
+- Invalid payload: ignore the navigation request.
+
+Notifications are refresh signals, not authoritative financial data.
+
+### 4. Permission strategy
+
+Request notification permission after the first successfully
+recorded payment.
+
+Explain the benefit before displaying the Android permission dialog.
+
+Not now and Android denial must not prevent payments.
+Do not repeatedly prompt after refusal.
+Persist the prompt decision across sign-outs.
+
+### 5. Payment proof processing
+
+Existing API:
+POST /api/v1/stokvels/{stokvelId}/contributions/{contributionId}/proof
+
+Maximum file size: 5,242,880 bytes.
+Maximum request size: 6,291,456 bytes.
+Accepted formats: PDF, JPEG and PNG.
+
+Mobile processing:
+- Capture or select an image.
+- Correct image orientation.
+- Resize longest side to a maximum of 1600 pixels.
+- Encode JPEG at quality levels 85, 70, 55 and 40.
+- Remove EXIF, GPS and unnecessary metadata.
+- Process images outside the UI isolate.
+- Reject images that cannot meet the API limit.
+- Upload through the authenticated Dio client.
+- Verify payer and treasurer access restrictions.
+
+### 6. Release secrets and settings
+
+Secrets:
+- Android upload keystore and passwords.
+- Firebase service-account credentials.
+- Firebase configuration files supplied through CI secrets.
+- Sentry authentication token.
+
+Non-secret settings:
+- API base URL.
+- Sentry DSN.
+- Expected signing certificate fingerprint.
+
+Keep credentials outside source control.
+Mount backend Firebase credentials read-only.
+Decode CI secrets into temporary runner files.
+
+### 7. Application versioning
+
+Derive version name from a vX.Y.Z Git tag.
+Derive build number from the CI run number.
+Display installed version using package_info_plus.
+
+Do not manually change pubspec.yaml for each release.
+Android version codes must increase.
+Older builds may be rejected as downgrades.
+
+### 8. Reviewer API access
+
+Provide an HTTPS endpoint through a controlled deployment
+or temporary tunnel.
+
+Never expose PostgreSQL directly.
+Trust forwarded headers only from configured proxies.
+Retain authentication and configurable sign-in rate limiting.
+A changed tunnel URL requires a new application build.
+
+### 9. Manual verification
+
+CI cannot replace verification of:
+- Real Firebase push delivery.
+- Lock-screen notification privacy.
+- Android permission behaviour.
+- Camera and gallery selection.
+- Signed APK installation on a second phone.
+- Firebase App Distribution reviewer installation.
+- End-to-end financial workflows.
+
+Document iOS signing, APNs, TestFlight and store publishing
+without requiring paid accounts.
+
