@@ -49,3 +49,14 @@ app.*.map.json
 
 # Golden test failure artifacts
 **/failures/
+
+# Assignment 12.2 - private Firebase configuration
+/config/firebase.dev.json
+/config/firebase.staging.json
+/config/firebase.prod.json
+**/google-services.json
+**/GoogleService-Info.plist
+*service-account*.json
+*.jks
+*.keystore
+**/key.properties
