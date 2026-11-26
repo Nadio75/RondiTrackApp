@@ -1,0 +1,229 @@
+name: Android Signed Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    defaults:
+      run:
+        working-directory: mobile
+
+    env:
+      API_BASE_URL_STAGING: ${{ vars.API_BASE_URL_STAGING }}
+      API_BASE_URL_PROD: ${{ vars.API_BASE_URL_PROD }}
+      RELEASE_CERT_SHA256: ${{ vars.RELEASE_CERT_SHA256 }}
+      SENTRY_DSN_STAGING: ${{ vars.SENTRY_DSN_STAGING }}
+      SENTRY_DSN_PROD: ${{ vars.SENTRY_DSN_PROD }}
+
+    steps:
+      - name: Checkout tagged source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Configure Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.7'
+          cache: true
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          sdkmanager "platforms;android-37" "build-tools;37.0.0"
+
+      - name: Install locked Flutter dependencies
+        run: flutter pub get --enforce-lockfile
+
+      - name: Restore private release configuration
+        shell: pwsh
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          FIREBASE_STAGING_CONFIG: ${{ secrets.FIREBASE_STAGING_CONFIG }}
+          FIREBASE_PROD_CONFIG: ${{ secrets.FIREBASE_PROD_CONFIG }}
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          foreach ($name in @(
+              "ANDROID_KEYSTORE_BASE64",
+              "ANDROID_STORE_PASSWORD",
+              "ANDROID_KEY_PASSWORD",
+              "ANDROID_KEY_ALIAS",
+              "FIREBASE_STAGING_CONFIG",
+              "FIREBASE_PROD_CONFIG"
+          )) {
+              if ([string]::IsNullOrWhiteSpace(
+                  [Environment]::GetEnvironmentVariable($name)
+              )) {
+                  throw "Missing required release secret: $name"
+              }
+          }
+
+          $private = Join-Path $env:RUNNER_TEMP "ronditrack-release"
+
+          New-Item -ItemType Directory -Force -Path $private |
+              Out-Null
+
+          & chmod 700 $private
+
+          $keystore = Join-Path $private "upload.p12"
+
+          [IO.File]::WriteAllBytes(
+              $keystore,
+              [Convert]::FromBase64String(
+                  $env:ANDROID_KEYSTORE_BASE64
+              )
+          )
+
+          @(
+              "storeFile=$keystore"
+              "storePassword=$env:ANDROID_STORE_PASSWORD"
+              "keyPassword=$env:ANDROID_KEY_PASSWORD"
+              "keyAlias=$env:ANDROID_KEY_ALIAS"
+          ) | Set-Content "android/key.properties" -Encoding ASCII
+
+          [IO.File]::WriteAllText(
+              (Join-Path (Get-Location).Path "config/firebase.staging.json"),
+              $env:FIREBASE_STAGING_CONFIG
+          )
+
+          [IO.File]::WriteAllText(
+              (Join-Path (Get-Location).Path "config/firebase.prod.json"),
+              $env:FIREBASE_PROD_CONFIG
+          )
+
+          & chmod 600 $keystore android/key.properties config/firebase.staging.json config/firebase.prod.json
+
+          Write-Host "Private release configuration restored."
+
+      - name: Validate release configuration
+        shell: pwsh
+        run: |
+          ./scripts/release.ps1 `
+            -Tag $env:GITHUB_REF_NAME `
+            -BuildNumber ([int]$env:GITHUB_RUN_NUMBER) `
+            -Target all `
+            -ValidateOnly
+
+      - name: Build and verify signed APK and AAB
+        shell: pwsh
+        run: |
+          ./scripts/release.ps1 `
+            -Tag $env:GITHUB_REF_NAME `
+            -BuildNumber ([int]$env:GITHUB_RUN_NUMBER) `
+            -Target all
+
+      - name: Generate artifact checksum manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "release-output/${GITHUB_REF_NAME}-${GITHUB_RUN_NUMBER}"
+          find . -type f ! -name SHA256SUMS.txt -print0 |
+            sort -z |
+            xargs -0 sha256sum > SHA256SUMS.txt
+          sha256sum --check SHA256SUMS.txt
+
+      - name: Retain signed release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ronditrack-${{ github.ref_name }}-${{ github.run_number }}
+          path: mobile/release-output/${{ github.ref_name }}-${{ github.run_number }}/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Sentry debugging symbols
+        shell: bash
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$SENTRY_AUTH_TOKEN" || -z "$SENTRY_ORG" || -z "$SENTRY_PROJECT" ]]; then
+            echo "::error::Sentry upload configuration is missing."
+            exit 1
+          fi
+
+          npm install --prefix "$RUNNER_TEMP/sentry-tools" --no-audit --no-fund @sentry/cli@2.42.2
+
+          CLI="$RUNNER_TEMP/sentry-tools/node_modules/.bin/sentry-cli"
+          OUTPUT="release-output/${GITHUB_REF_NAME}-${GITHUB_RUN_NUMBER}"
+
+          for FLAVOUR in staging prod; do
+            RELEASE=$(sed -n 's/^SentryRelease=//p' "$OUTPUT/$FLAVOUR-metadata.txt" | tr -d '\r')
+            DIST=$(sed -n 's/^SentryDist=//p' "$OUTPUT/$FLAVOUR-metadata.txt" | tr -d '\r')
+
+            "$CLI" releases new "$RELEASE"
+            "$CLI" debug-files upload "$OUTPUT/symbols/$FLAVOUR"
+            "$CLI" upload-proguard \
+              --version "$RELEASE" \
+              --dist "$DIST" \
+              "$OUTPUT/symbols/$FLAVOUR/mapping.txt"
+            "$CLI" releases finalize "$RELEASE"
+          done
+
+      - name: Distribute staging APK to Firebase testers
+        shell: bash
+        env:
+          FIREBASE_DISTRIBUTION_CREDENTIAL: ${{ secrets.FIREBASE_DISTRIBUTION_CREDENTIAL }}
+          FIREBASE_STAGING_APP_ID: ${{ vars.FIREBASE_STAGING_APP_ID }}
+          FIREBASE_TESTER_GROUP: ${{ vars.FIREBASE_TESTER_GROUP }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$FIREBASE_DISTRIBUTION_CREDENTIAL" || -z "$FIREBASE_STAGING_APP_ID" || -z "$FIREBASE_TESTER_GROUP" ]]; then
+            echo "::error::Firebase distribution configuration is missing."
+            exit 1
+          fi
+
+          umask 077
+          CREDENTIAL="$RUNNER_TEMP/ronditrack-release/distribution.json"
+
+          printf '%s' "$FIREBASE_DISTRIBUTION_CREDENTIAL" > "$CREDENTIAL"
+
+          export GOOGLE_APPLICATION_CREDENTIALS="$CREDENTIAL"
+
+          npm install --prefix "$RUNNER_TEMP/firebase-tools" --no-audit --no-fund firebase-tools@14.12.0
+
+          VERSION="${GITHUB_REF_NAME#v}"
+          APK="release-output/${GITHUB_REF_NAME}-${GITHUB_RUN_NUMBER}/RondiTrack-staging-${VERSION}-${GITHUB_RUN_NUMBER}.apk"
+
+          "$RUNNER_TEMP/firebase-tools/node_modules/.bin/firebase" appdistribution:distribute "$APK" \
+            --app "$FIREBASE_STAGING_APP_ID" \
+            --groups "$FIREBASE_TESTER_GROUP" \
+            --release-notes "RondiTrack ${GITHUB_REF_NAME}, build ${GITHUB_RUN_NUMBER}" \
+            --non-interactive
+
+      - name: Remove temporary credentials
+        if: always()
+        shell: bash
+        run: |
+          rm -f android/key.properties
+          rm -f config/firebase.staging.json
+          rm -f config/firebase.prod.json
+          rm -rf "$RUNNER_TEMP/ronditrack-release"
