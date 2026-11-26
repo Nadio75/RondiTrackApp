@@ -237,6 +237,20 @@ if (Test-Path $output) {
 New-Item -ItemType Directory -Path $output -Force |
     Out-Null
 
+# Prepare normal development plugin registration before release.
+. (Join-Path $PSScriptRoot "ReleasePluginGuard.ps1")
+
+Invoke-Checked -Command "flutter" -Arguments @(
+    "pub", "get", "--offline"
+)
+
+$registrantPath = Join-Path (Get-Location).Path `
+    "android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java"
+
+if (-not (Test-Path $registrantPath)) {
+    throw "Generated Android plugin registrant missing."
+}
+
 function Assert-ApkCertificate {
     param([string]$Path)
 
@@ -248,19 +262,42 @@ function Assert-ApkCertificate {
         throw "APK signature verification failed."
     }
 
-    $matches = [regex]::Matches(
-        ($report -join "`n"),
-        '(?im)^Signer #\d+ certificate SHA-256 digest:\s*([A-F0-9:]+)'
+    $raw = $report -join "`n"
+
+    $counts = [regex]::Matches(
+        $raw,
+        '(?im)^[ \t]*Number of signers:[ \t]*(\d+)[ \t]*\r?$'
     )
 
-    if ($matches.Count -ne 1) {
+    if ($counts.Count -ne 1) {
+        throw "Missing or ambiguous APK signer count."
+    }
+
+    if ($counts[0].Groups[1].Value -ne "1") {
         throw "Expected exactly one APK signer."
     }
 
-    $actual = Normalize-Fingerprint $matches[0].Groups[1].Value
+    $pattern = '(?im)^[ \t]*(?:Signer #\d+|V\d+(?:\.\d+)? Signer:)[ \t]+certificate SHA-256 digest:[ \t]*([0-9a-f:]+)[ \t]*\r?$'
 
-    if ($actual -ne $expected) {
-        throw "APK certificate mismatch. Release refused."
+    $digests = [regex]::Matches($raw, $pattern)
+
+    if ($digests.Count -eq 0) {
+        throw "No APK certificate digest found."
+    }
+
+    foreach ($digest in $digests) {
+
+        $actual = $digest.Groups[1].Value.Replace(
+            ":", ""
+        ).ToUpperInvariant()
+
+        if ($actual -notmatch '^[0-9A-F]{64}$') {
+            throw "Invalid APK certificate digest."
+        }
+
+        if ($actual -cne $expected) {
+            throw "APK certificate mismatch. Release refused."
+        }
     }
 
     Write-Host "APK certificate verified."
@@ -357,9 +394,13 @@ foreach ($flavour in $flavours) {
 
     if ($flavour -eq "staging") {
 
-        Invoke-Checked -Command "flutter" -Arguments (
-            @("build", "apk") + $common
-        )
+        Invoke-ReleasePluginGuard `
+            -RegistrantPath $registrantPath `
+            -Build {
+                Invoke-Checked -Command "flutter" -Arguments (
+                    @("build", "apk") + $common
+                )
+            }
 
         $artifact = "build/app/outputs/flutter-apk/app-staging-release.apk"
 
@@ -374,9 +415,13 @@ foreach ($flavour in $flavours) {
 
     } else {
 
-        Invoke-Checked -Command "flutter" -Arguments (
-            @("build", "appbundle") + $common
-        )
+        Invoke-ReleasePluginGuard `
+            -RegistrantPath $registrantPath `
+            -Build {
+                Invoke-Checked -Command "flutter" -Arguments (
+                    @("build", "appbundle") + $common
+                )
+            }
 
         $artifact = "build/app/outputs/bundle/prodRelease/app-prod-release.aab"
 
