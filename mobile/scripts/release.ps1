@@ -312,7 +312,7 @@ function Assert-AabCertificate {
     )
 
     $report = @(
-        & $keytool -J-Duser.language=en `
+        & $keytool "-J-Duser.language=en" `
             -printcert -jarfile $Path
     )
 
