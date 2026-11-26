@@ -54,16 +54,22 @@ void main() {
       ),
     );
 
+    await tester.ensureVisible(find.text('Thabo - Member'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Thabo - Member'));
     await tester.pump();
 
     expect(container.read(sessionProvider)?.email, 'thabo@example.com');
 
+    await tester.ensureVisible(find.text('Naledi - Non-member'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Naledi - Non-member'));
     await tester.pump();
 
     expect(container.read(sessionProvider)?.email, 'naledi@example.com');
 
+    await tester.ensureVisible(find.text('Lerato - Treasurer'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Lerato - Treasurer'));
     await tester.pump();
 

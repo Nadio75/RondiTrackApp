@@ -1,0 +1,240 @@
+{
+    "@@locale":  "en",
+    "appName":  "RondiTrack",
+    "home":  "Home",
+    "stokvels":  "Stokvels",
+    "activity":  "Activity",
+    "profile":  "Profile",
+    "language":  "Language",
+    "appLanguage":  "App language",
+    "chooseLanguage":  "Choose your preferred language",
+    "english":  "English",
+    "sepedi":  "Sepedi",
+    "saveLanguage":  "Save language",
+    "languageChanged":  "Language changed successfully",
+    "guest":  "Guest",
+    "signOut":  "Sign out",
+    "logout":  "Logout",
+    "login":  "Login",
+    "email":  "Email",
+    "password":  "Password",
+    "signInSubtitle":  "Sign in to manage your stokvel",
+    "pleaseSignIn":  "Please sign in",
+    "invalidCredentials":  "Invalid email or password",
+    "tooManyAttempts":  "Too many attempts. Please try again later.",
+    "signInConnectionError":  "Unable to sign in. Check your connection and retry.",
+    "signInError":  "Unable to sign in. Please try again.",
+    "stokvelOverview":  "Your stokvel overview",
+    "noStokvels":  "You have not joined any stokvels yet.",
+    "noHomeData":  "No Home data is available yet.",
+    "loadStokvelsError":  "Could not load your stokvels.",
+    "retry":  "Retry",
+    "tryAgain":  "Try again",
+    "loading":  "Loading...",
+    "offline":  "Offline",
+    "cancel":  "Cancel",
+    "save":  "Save",
+    "close":  "Close",
+    "treasurer":  "Treasurer",
+    "chairperson":  "Chairperson",
+    "member":  "Member",
+    "paid":  "Paid",
+    "pending":  "Pending",
+    "inArrears":  "In arrears",
+    "upToDate":  "Up to date",
+    "unknown":  "Unknown",
+    "welcome":  "Welcome, {name}!",
+    "@welcome":  {
+                     "placeholders":  {
+                                          "name":  {
+                                                       "type":  "String"
+                                                   }
+                                      }
+                 },
+    "monthlyContribution":  "Monthly contribution: {amount}",
+    "@monthlyContribution":  {
+                                 "placeholders":  {
+                                                      "amount":  {
+                                                                     "type":  "String"
+                                                                 }
+                                                  }
+                             },
+    "roleLabel":  "Role: {role}",
+    "@roleLabel":  {
+                       "placeholders":  {
+                                            "role":  {
+                                                         "type":  "String"
+                                                     }
+                                        }
+                   },
+    "contributionStatus":  "Contribution status: {status}",
+    "@contributionStatus":  {
+                                "placeholders":  {
+                                                     "status":  {
+                                                                    "type":  "String"
+                                                                }
+                                                 }
+                            },
+    "lastUpdated":  "Last updated: {date}",
+    "@lastUpdated":  {
+                         "placeholders":  {
+                                              "date":  {
+                                                           "type":  "String"
+                                                       }
+                                          }
+                     },
+    "contributionCount":  "{count, plural, =0{No contributions} =1{1 contribution} other{{count} contributions}}",
+    "@contributionCount":  {
+                               "placeholders":  {
+                                                    "count":  {
+                                                                  "type":  "int"
+                                                              }
+                                                }
+                           },
+    "activityEmpty":  "Your stokvel activity will appear here.",
+    "myStokvels":  "My Stokvels",
+    "loadStokvelsListError":  "Could not load stokvels.",
+    "stokvel":  "Stokvel",
+    "loadStokvelDetailsError":  "Could not load stokvel details.",
+    "stokvelNotFound":  "Stokvel not found",
+    "switchStokvel":  "Switch stokvel",
+    "monthlyContributionTitle":  "Monthly contribution",
+    "yourRole":  "Your role: {value}",
+    "@yourRole":  {
+                      "placeholders":  {
+                                           "value":  {
+                                                         "type":  "String"
+                                                     }
+                                       }
+                  },
+    "currentCycle":  "Current cycle",
+    "statusLabel":  "Status: {value}",
+    "@statusLabel":  {
+                         "placeholders":  {
+                                              "value":  {
+                                                            "type":  "String"
+                                                        }
+                                          }
+                     },
+    "viewCurrentCycle":  "View Current Cycle",
+    "totalPaidContributions":  "Total paid contributions",
+    "yourPaidContributions":  "Your paid contributions",
+    "memberContributions":  "Member contributions",
+    "yourContributions":  "Your contributions",
+    "noContributionsFound":  "No contributions found.",
+    "unknownMember":  "Unknown member",
+    "selectStokvel":  "Select a stokvel to view its details.",
+    "payoutRotation":  "Payout rotation",
+    "payoutEmpty":  "No payout rotation is available for this cycle.",
+    "payoutLoadError":  "Could not load the payout rotation.",
+    "payoutSchedule":  "Payout schedule",
+    "recipientOrderDescription":  "Recipients are shown in their assigned payout order.",
+    "nextRecipient":  "Next recipient",
+    "rotationOrder":  "Rotation order",
+    "next":  "Next",
+    "upcoming":  "Upcoming",
+    "active":  "Active",
+    "closed":  "Closed",
+    "overdue":  "Overdue",
+    "nextPayoutRecipient":  "Next payout recipient",
+    "scheduled":  "Scheduled: {value}",
+    "@scheduled":  {
+                       "placeholders":  {
+                                            "value":  {
+                                                          "type":  "String"
+                                                      }
+                                        }
+                   },
+    "cycle":  "Cycle",
+    "cycleNotFound":  "Cycle not found",
+    "cycleDashboard":  "Cycle dashboard",
+    "cycleIdentifier":  "Cycle {value}",
+    "@cycleIdentifier":  {
+                             "placeholders":  {
+                                                  "value":  {
+                                                                "type":  "String"
+                                                            }
+                                              }
+                         },
+    "cycleOverview":  "Cycle overview",
+    "startDate":  "Start date: {value}",
+    "@startDate":  {
+                       "placeholders":  {
+                                            "value":  {
+                                                          "type":  "String"
+                                                      }
+                                        }
+                   },
+    "endDate":  "End date: {value}",
+    "@endDate":  {
+                     "placeholders":  {
+                                          "value":  {
+                                                        "type":  "String"
+                                                    }
+                                      }
+                 },
+    "contributionSummary":  "Contribution summary",
+    "demoContributionCounts":  "Paid and unpaid member counts are not available for this cycle in the current demo data.",
+    "payoutInformation":  "Payout information",
+    "payoutDescription":  "View the assigned recipient order and the next payout for this cycle.",
+    "viewPayoutRotation":  "View payout rotation",
+    "stokvelInvitation":  "Stokvel invitation",
+    "youAreInvited":  "You have been invited!",
+    "invitationCode":  "Your invitation code is:",
+    "invitationUnavailable":  "Invitation acceptance will be available when the invitation service is connected.",
+    "restoringSession":  "Restoring your session...",
+    "restoreSessionError":  "Unable to restore your session.",
+    "languageSaveError":  "Could not save language. Try again.",
+    "viewStokvels":  "View stokvels",
+    "offlineSavedData":  "Offline - showing saved data",
+    "cachedSavedData":  "Unable to refresh - showing saved data",
+    "updatedJustNow":  "Updated just now",
+    "updatedMinutesAgo":  "{count, plural, =1{Updated 1 minute ago} other{Updated {count} minutes ago}}",
+    "updatedHoursAgo":  "{count, plural, =1{Updated 1 hour ago} other{Updated {count} hours ago}}",
+    "updatedDaysAgo":  "{count, plural, =1{Updated 1 day ago} other{Updated {count} days ago}}",
+    "errorReference":  "Reference: {reference}",
+    "@updatedMinutesAgo":  {
+                               "placeholders":  {
+                                                    "count":  {
+                                                                  "type":  "int"
+                                                              }
+                                                }
+                           },
+    "@updatedHoursAgo":  {
+                             "placeholders":  {
+                                                  "count":  {
+                                                                "type":  "int"
+                                                            }
+                                              }
+                         },
+    "@updatedDaysAgo":  {
+                            "placeholders":  {
+                                                 "count":  {
+                                                               "type":  "int"
+                                                           }
+                                             }
+                        },
+    "@errorReference":  {
+                            "placeholders":  {
+                                                 "reference":  {
+                                                                   "type":  "String"
+                                                               }
+                                             }
+                        },
+  "recordContribution": "Record contribution",
+  "contributionAmount": "Contribution amount",
+  "contributionRecorded": "Contribution recorded",
+  "contributionPending": "Contribution saved and waiting to be sent",
+  "contributionRateLimited": "Please wait before trying again",
+  "contributionAlreadyPaid": "This contribution has already been paid",
+  "contributionCycleClosed": "This cycle is closed",
+  "contributionConflict": "Contribution conflict. Check your records.",
+  "contributionRejected": "Contribution could not be accepted",
+  "contributionAuthenticationRequired": "Sign in again to continue",
+  "contributionExpired": "Pending contribution expired. Check your records.",
+  "contributionReviewRequired": "Contribution needs review before retrying",
+  "contributionInvalidAmount": "Enter a valid positive amount",
+  "contributionSaveFailed": "Unable to save contribution",
+  "contributionProcessing": "Processing contribution",
+  "retryPendingContributions": "Retry pending contributions"
+}

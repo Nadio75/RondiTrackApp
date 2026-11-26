@@ -8,6 +8,12 @@ Failure mapDioFailure(DioException exception) {
   final correlationId = _correlationId(response?.data);
 
   switch (status) {
+    case 400:
+    case 422:
+      return ValidationFailure(
+        statusCode: status!,
+        correlationId: correlationId,
+      );
     case 401:
       return UnauthorizedFailure(correlationId: correlationId);
     case 403:

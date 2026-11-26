@@ -1,3 +1,6 @@
+import '../../../core/localization/localization_context.dart';
+import '../../../core/localization/localized_values.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,20 +16,21 @@ class ExpandedStokvelLayout extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final user = ref.watch(sessionProvider);
 
     if (user == null) {
-      return const Scaffold(body: Center(child: Text('Please sign in')));
+      return Scaffold(body: Center(child: Text(l10n.pleaseSignIn)));
     }
 
     final summaries = ref.watch(homeSummariesProvider(user.id));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Stokvels')),
+      appBar: AppBar(title: Text(l10n.myStokvels)),
       body: summaries.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) =>
-            const Center(child: Text('Could not load stokvels.')),
+            Center(child: Text(l10n.loadStokvelsListError)),
         data: (items) {
           final selectedItems = items.where(
             (item) => item.stokvel.id == selectedStokvelId,
@@ -45,7 +49,9 @@ class ExpandedStokvelLayout extends ConsumerWidget {
                         selected: item.stokvel.id == selectedStokvelId,
                         leading: const Icon(Icons.groups),
                         title: Text(item.stokvel.name),
-                        subtitle: Text('Role: ${item.role.name}'),
+                        subtitle: Text(
+                          l10n.roleLabel(localizedRole(l10n, item.role.name)),
+                        ),
                         onTap: () {
                           StokvelRoute(id: item.stokvel.id).go(context);
                         },
@@ -56,11 +62,9 @@ class ExpandedStokvelLayout extends ConsumerWidget {
               const VerticalDivider(width: 1),
               Expanded(
                 child: selectedStokvelId == null
-                    ? const Center(
-                        child: Text('Select a stokvel to view its details.'),
-                      )
+                    ? Center(child: Text(l10n.selectStokvel))
                     : selected == null
-                    ? const Center(child: Text('Stokvel not found'))
+                    ? Center(child: Text(l10n.stokvelNotFound))
                     : StokvelDetailsScreen(
                         key: ValueKey(selectedStokvelId),
                         stokvelId: selectedStokvelId!,

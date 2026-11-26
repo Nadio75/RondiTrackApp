@@ -1,8 +1,34 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val releaseSigningProperties = Properties()
+val releaseSigningFile = rootProject.file("key.properties")
+
+if (releaseSigningFile.isFile) {
+    FileInputStream(releaseSigningFile).use {
+        releaseSigningProperties.load(it)
+    }
+}
+
+val releaseSigningReady =
+    releaseSigningFile.isFile &&
+    listOf(
+        "storeFile",
+        "storePassword",
+        "keyAlias",
+        "keyPassword"
+    ).all {
+        !releaseSigningProperties.getProperty(it).isNullOrBlank()
+    } &&
+    rootProject.file(
+        releaseSigningProperties.getProperty("storeFile", "")
+    ).isFile
 
 android {
     flavorDimensions += "environment"
@@ -27,10 +53,11 @@ android {
     }
 
     namespace = "za.co.maja.ronditrack"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -50,11 +77,26 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("release") {
+            if (releaseSigningReady) {
+                storeFile = rootProject.file(
+                    releaseSigningProperties.getProperty("storeFile")
+                )
+                storePassword =
+                    releaseSigningProperties.getProperty("storePassword")
+                keyAlias =
+                    releaseSigningProperties.getProperty("keyAlias")
+                keyPassword =
+                    releaseSigningProperties.getProperty("keyPassword")
+                storeType = "PKCS12"
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
@@ -62,4 +104,24 @@ android {
 
 flutter {
     source = "../.."
+}
+
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+}
+
+
+gradle.taskGraph.whenReady {
+    val releaseRequested = allTasks.any {
+        it.project.path == project.path &&
+        it.name.contains("Release", ignoreCase = true)
+    }
+
+    if (releaseRequested && !releaseSigningReady) {
+        throw GradleException(
+            "Release signing refused: valid key.properties " +
+            "and upload keystore are required."
+        )
+    }
 }

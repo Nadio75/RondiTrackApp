@@ -26,14 +26,28 @@ class CachedHomeStokvel {
   }
 }
 
+enum HomeDataSource { live, offlineCache, unavailableCache }
+
 class CachedHomeSnapshot {
   const CachedHomeSnapshot({
     required this.stokvels,
     required this.updatedAtUtc,
+    this.source = HomeDataSource.live,
   });
 
   final List<CachedHomeStokvel> stokvels;
   final DateTime updatedAtUtc;
+  final HomeDataSource source;
+
+  bool get isCached => source != HomeDataSource.live;
+
+  CachedHomeSnapshot withSource(HomeDataSource source) {
+    return CachedHomeSnapshot(
+      stokvels: stokvels,
+      updatedAtUtc: updatedAtUtc,
+      source: source,
+    );
+  }
 }
 
 class HomeCacheRepository {

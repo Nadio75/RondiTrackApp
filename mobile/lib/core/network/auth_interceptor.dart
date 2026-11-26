@@ -9,6 +9,21 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    final requiredGeneration = options.extra['requiredAuthSessionGeneration'];
+
+    if (requiredGeneration != null &&
+        (requiredGeneration != _auth.sessionGeneration ||
+            !_auth.isAuthenticated)) {
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          type: DioExceptionType.cancel,
+          message: 'Authentication session changed.',
+        ),
+      );
+      return;
+    }
+
     final requestUri = options.uri;
     final apiUri = Uri.parse(options.baseUrl);
 
@@ -21,6 +36,7 @@ class AuthInterceptor extends Interceptor {
     final path = requestUri.path;
 
     final isAuthEndpoint =
+        path == '/api/v1/auth/register' ||
         path == '/api/v1/auth/login' ||
         path == '/api/v1/auth/refresh' ||
         path == '/api/v1/auth/logout';

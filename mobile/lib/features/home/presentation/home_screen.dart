@@ -1,7 +1,9 @@
+import '../../../core/localization/localization_context.dart';
+import 'stokvel_summary_card.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/money/cents.dart';
 import '../../session/presentation/session_provider.dart';
 import '../../session/presentation/session_origin_provider.dart';
 import 'api_home_view.dart';
@@ -14,10 +16,11 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(sessionProvider);
+    final l10n = context.l10n;
     final origin = ref.watch(sessionOriginProvider);
 
     if (user == null) {
-      return const Scaffold(body: Center(child: Text('Please sign in')));
+      return Scaffold(body: Center(child: Text(l10n.pleaseSignIn)));
     }
 
     if (origin == SessionOrigin.api) {
@@ -26,7 +29,7 @@ class HomeScreen extends ConsumerWidget {
           title: const Text('RondiTrack'),
           actions: [
             IconButton(
-              tooltip: 'Logout',
+              tooltip: l10n.logout,
               onPressed: () {
                 ref.read(sessionProvider.notifier).logoutWithApi();
               },
@@ -45,7 +48,7 @@ class HomeScreen extends ConsumerWidget {
         title: const Text('RondiTrack'),
         actions: [
           IconButton(
-            tooltip: 'Logout',
+            tooltip: l10n.logout,
             onPressed: () {
               ref.read(sessionProvider.notifier).logoutWithApi();
             },
@@ -62,61 +65,45 @@ class HomeScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(20),
           children: [
             Text(
-              'Welcome, ${user.name}!',
+              l10n.welcome(user.name),
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),
-            const Text('Your stokvel overview'),
+            Text(l10n.stokvelOverview),
             const SizedBox(height: 24),
             switch (summariesAsync) {
-              AsyncData(:final value) when value.isEmpty => const Card(
+              AsyncData(:final value) when value.isEmpty => Card(
                 child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Text('You have not joined any stokvels yet.'),
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      Text(l10n.noStokvels),
+                      const SizedBox(height: 16),
+                      FilledButton(
+                        onPressed: () {
+                          const StokvelsRoute().go(context);
+                        },
+                        child: Text(l10n.viewStokvels),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               AsyncData(:final value) => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   for (final summary in value)
-                    Card(
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () {
-                          StokvelRoute(id: summary.stokvel.id).push(context);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                summary.stokvel.name,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(summary.stokvel.description),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Monthly contribution: '
-                                '${formatRands(summary.stokvel.monthlyContributionCents)}',
-                              ),
-                              const SizedBox(height: 8),
-                              Text('Role: ${summary.role.name}'),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Contribution status: '
-                                '${summary.contributionStatus?.name ?? "none"}',
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    StokvelSummaryCard(
+                      stokvel: summary.stokvel,
+                      role: summary.role,
+                      contributionStatus: summary.contributionStatus,
+                      onTap: () {
+                        StokvelRoute(id: summary.stokvel.id).push(context);
+                      },
                     ),
                 ],
               ),
+
               AsyncError() => Card(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -124,13 +111,13 @@ class HomeScreen extends ConsumerWidget {
                     children: [
                       const Icon(Icons.error_outline, size: 40),
                       const SizedBox(height: 12),
-                      const Text('Could not load your stokvels.'),
+                      Text(l10n.loadStokvelsError),
                       const SizedBox(height: 12),
                       FilledButton(
                         onPressed: () {
                           ref.invalidate(homeSummariesProvider(user.id));
                         },
-                        child: const Text('Retry'),
+                        child: Text(l10n.retry),
                       ),
                     ],
                   ),

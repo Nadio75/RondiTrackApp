@@ -34,6 +34,24 @@ class FakeHomeAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+class TransportFailureAdapter implements HttpClientAdapter {
+  TransportFailureAdapter(this.type);
+
+  final DioExceptionType type;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    throw DioException(requestOptions: options, type: type);
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 void main() {
   late AppDatabase database;
   late HomeCacheRepository cache;
@@ -247,8 +265,135 @@ void main() {
       'message': 'Service unavailable',
     });
 
-    final snapshot = await service().loadWithFallback('user-1');
+    await expectLater(
+      service().loadWithFallback('user-1'),
+      throwsA(isA<DioException>()),
+    );
 
-    expect(snapshot, isNull);
+    expect(await cache.load('user-1'), isNull);
+
+    final otherAccount = await cache.load('user-2');
+
+    expect(otherAccount, isNotNull);
+    expect(otherAccount!.stokvels.single.id, 'private-2');
+  });
+
+  group('Home cache source and security rules', () {
+    final savedAt = DateTime.utc(2026, 11, 24, 8);
+
+    Future<void> seedCache() async {
+      await cache.save(
+        accountId: 'user-1',
+        stokvels: const [
+          CachedHomeStokvel(
+            id: 'synthetic-cache',
+            name: 'Synthetic Savings Club',
+            role: 'Member',
+          ),
+        ],
+        updatedAtUtc: savedAt,
+      );
+    }
+
+    test('explicit offline load preserves original timestamp', () async {
+      await seedCache();
+
+      final snapshot = await service().loadOffline('user-1');
+
+      expect(snapshot, isNotNull);
+      expect(snapshot!.source, HomeDataSource.offlineCache);
+      expect(snapshot.isCached, isTrue);
+      expect(snapshot.updatedAtUtc, savedAt);
+    });
+
+    test('connection failure returns offline cache source', () async {
+      await seedCache();
+
+      dio.httpClientAdapter = TransportFailureAdapter(
+        DioExceptionType.connectionError,
+      );
+
+      final snapshot = await service().loadWithFallback('user-1');
+
+      expect(snapshot, isNotNull);
+      expect(snapshot!.source, HomeDataSource.offlineCache);
+      expect(snapshot.updatedAtUtc, savedAt);
+    });
+
+    for (final status in [429, 503]) {
+      test('HTTP $status returns unavailable cache source', () async {
+        await seedCache();
+
+        dio.httpClientAdapter = FakeHomeAdapter(status, {
+          'title': 'Synthetic unavailable response',
+        });
+
+        final snapshot = await service().loadWithFallback('user-1');
+
+        expect(snapshot, isNotNull);
+        expect(snapshot!.source, HomeDataSource.unavailableCache);
+        expect(snapshot.updatedAtUtc, savedAt);
+        expect(snapshot.isCached, isTrue);
+      });
+    }
+
+    test('403 never exposes previously cached data', () async {
+      await seedCache();
+
+      dio.httpClientAdapter = FakeHomeAdapter(403, {'title': 'Forbidden'});
+
+      await expectLater(
+        service().loadWithFallback('user-1'),
+        throwsA(
+          isA<DioException>().having(
+            (error) => error.response?.statusCode,
+            'status',
+            403,
+          ),
+        ),
+      );
+    });
+
+    test('certificate failure never falls back to cache', () async {
+      await seedCache();
+
+      dio.httpClientAdapter = TransportFailureAdapter(
+        DioExceptionType.badCertificate,
+      );
+
+      await expectLater(
+        service().loadWithFallback('user-1'),
+        throwsA(
+          isA<DioException>().having(
+            (error) => error.type,
+            'type',
+            DioExceptionType.badCertificate,
+          ),
+        ),
+      );
+    });
+
+    test('connection failure without cache remains an error', () async {
+      dio.httpClientAdapter = TransportFailureAdapter(
+        DioExceptionType.connectionError,
+      );
+
+      await expectLater(
+        service().loadWithFallback('user-1'),
+        throwsA(isA<DioException>()),
+      );
+
+      expect(await cache.load('user-1'), isNull);
+    });
+
+    test('successful refresh returns live data source', () async {
+      dio.httpClientAdapter = FakeHomeAdapter(200, {'stokvels': []});
+
+      final snapshot = await service().refresh('user-1');
+
+      expect(snapshot.source, HomeDataSource.live);
+      expect(snapshot.isCached, isFalse);
+      expect(snapshot.stokvels, isEmpty);
+    });
   });
 }

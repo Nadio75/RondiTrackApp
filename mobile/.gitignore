@@ -46,3 +46,27 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Golden test failure artifacts
+**/failures/
+
+# Assignment 12.2 - private Firebase configuration
+/config/firebase.dev.json
+/config/firebase.staging.json
+/config/firebase.prod.json
+**/google-services.json
+**/GoogleService-Info.plist
+*service-account*.json
+*.jks
+*.keystore
+**/key.properties
+
+*.p12
+
+key.properties
+
+key.properties.mutation
+
+/release-output/
+
+google-services.json

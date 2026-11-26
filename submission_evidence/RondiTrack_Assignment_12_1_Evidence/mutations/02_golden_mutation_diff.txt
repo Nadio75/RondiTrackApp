@@ -1,0 +1,4 @@
+﻿Golden mutation: card padding
+Original: EdgeInsets.all(20)
+Mutated: EdgeInsets.all(32)
+Expected: golden comparison failure

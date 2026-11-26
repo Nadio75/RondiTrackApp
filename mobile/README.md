@@ -1,4 +1,4 @@
-﻿# RondiTrack
+# RondiTrack
 
 RondiTrack is a Flutter application for viewing stokvel membership information, monthly savings contributions, and contribution statuses.
 
@@ -369,3 +369,472 @@ flutter pub get
 flutter run -d chrome `
   --dart-define=APP_FLAVOR=dev `
   --dart-define=API_BASE_URL=http://localhost:8080
+```
+
+
+## Assignment 12.1 - Tests, Speed and Privacy
+
+### Baseline
+
+Measured on 24 November 2026, before implementation:
+
+- Flutter tests: 282 passed.
+- Static analysis: no issues.
+- Executable lines: 2867.
+- Covered lines: 1459.
+- Uncovered lines: 1408.
+- Baseline line coverage: 50.89%.
+- Initial CI coverage threshold: 50%.
+
+### Test plan
+
+| Area | Planned verification |
+|---|---|
+| Notifiers | Loading, success, failure and refresh states |
+| Failure mapping | Network, validation, authentication and server failures |
+| Home widgets | Loading, empty, success, error and retry states |
+| Accessibility | Semantic labels, tap targets and 200% text scaling |
+| Golden tests | Stokvel cards in light and dark themes |
+| Offline outbox | Persistence, retries and stable idempotency keys |
+| Integration | Android application workflow and three consecutive successful runs |
+| Localization | English, Sepedi, language switching and persistence |
+| Performance | Contributions list rebuilds before and after optimization |
+| Privacy | Scrubbing sensitive information from monitoring events |
+| Analytics | Approved event names and non-sensitive properties |
+| Mutation testing | Deliberately break behaviour, verify failure, restore and retest |
+| CI | Formatting, analysis, tests and coverage enforcement |
+
+All existing tests must continue to pass.
+
+Chrome will be used for routine development and browser verification.
+Android-specific requirements will be verified separately.
+
+### Privacy
+
+RondiTrack handles personal and financial information.
+Monitoring and analytics must follow data minimisation principles
+consistent with POPIA.
+
+The following information must not be sent to Sentry or analytics:
+
+- Member names.
+- Email addresses.
+- Authentication tokens.
+- Passwords.
+- Payment and contribution amounts.
+- Proof-of-payment filenames.
+- Sensitive request and response bodies.
+- Authentication headers and cookies.
+
+Monitoring events will be scrubbed before transmission.
+Analytics will use explicitly approved event names and properties.
+Unknown or sensitive properties will be excluded.
+
+Monitoring configuration will be environment-specific.
+Production credentials must not be committed to Git.
+
+Locally stored session and financial data must be isolated appropriately
+and cleared according to the application's session lifecycle.
+
+The selected application language is a non-sensitive preference and
+may be stored using SharedPreferences.
+
+Privacy controls will be verified through automated tests and
+deliberate mutation tests.
+
+### Localization plan
+
+The application will support English and Sepedi (Northern Sotho).
+
+- English language code: en.
+- Sepedi language code: nso.
+- Application messages will use localization resources.
+- Language selection will be available from Profile.
+- The selected language will persist across application restarts.
+- Dynamic messages and plurals will be localized.
+- South African currency formatting will be preserved.
+- Framework localization limitations will be documented.
+- Both languages will be tested during final verification.
+
+### Submission evidence
+
+Evidence will include actual application screenshots, automated test
+results, coverage measurements, performance comparisons, privacy
+verification and CI results.
+
+Unfinished or unverified requirements will be documented honestly.
+
+
+## Assignment 12.1 - English and Sepedi Localization
+
+### Implementation
+
+RondiTrack supports English (`en`) and Sepedi (`nso`) through
+Flutter's generated localization resources.
+
+- 101 translation entries per language.
+- 12 localized feature screens.
+- Language selection available on Login and Profile.
+- Language preferences persisted using SharedPreferences.
+- English is the default language.
+- Invalid stored language preferences fall back to English.
+- Unsupported languages are rejected.
+- Dynamic placeholders preserve member names and financial values.
+- Contribution messages support singular and plural forms.
+- Navigation labels update when the language changes.
+- Compact, medium and expanded layouts support both languages.
+
+### Design decisions
+
+Flutter ARB resources are used instead of maintaining separate
+hardcoded translation dictionaries.
+
+Riverpod manages the selected language and updates the application
+without requiring a restart.
+
+Only the language code is stored in SharedPreferences. No member
+identity, financial information or authentication credentials are
+stored by the language preference provider.
+
+The installed Flutter SDK does not provide native Sepedi framework
+localizations. Custom delegates therefore provide an English
+framework fallback while application-owned labels support Sepedi.
+
+Financial values retain their existing South African Rand formatting
+and are not converted when the language changes.
+
+### Automated localization tests
+
+| Test file | Passing tests |
+| --- | ---: |
+| localization_resources_test.dart | 12 |
+| language_provider_test.dart | 7 |
+| language_selector_test.dart | 5 |
+| real_app_localization_test.dart | 6 |
+| Total | 30 |
+
+The tests cover translation resources, dynamic placeholders,
+pluralization, persistence, invalid preferences, language switching,
+framework compatibility, dark mode, responsive navigation and
+large-text rendering.
+
+The real application was tested at compact, medium and expanded
+viewport sizes, including 360dp with 200% text scaling.
+
+### Verification results
+
+- Baseline regression suite: 282 passing tests.
+- New localization tests: 30 passing tests.
+- Combined regression suite: 312 passing tests.
+- Static analysis: no issues found.
+- Translation resource keys: identical across both languages.
+
+### Running localization tests
+
+```powershell
+flutter gen-l10n
+dart analyze --fatal-infos
+flutter test test/core/localization
+flutter test
+```
+
+### Remaining localization verification
+
+Manual Chrome testing and actual application screenshots will be
+completed during final Assignment 12.1 verification.
+
+Automated tests do not replace native screen-reader testing,
+human linguistic review or physical-device verification.
+
+
+## Assignment 12.1 - Unit Testing Results
+
+The regression suite contains 362 passing tests, compared with
+282 tests at the start of the assignment.
+
+| Test category | Tests |
+|---|---:|
+| Existing regression suite | 282 |
+| English and Sepedi localization | 30 |
+| Home and payout Mocktail tests | 13 |
+| Failure mapping matrix | 33 |
+| Populated Home Mocktail tests | 4 |
+| Total | 362 |
+
+Static analysis: no issues.
+
+### Dependency decisions
+
+- Mocktail 1.0.5 for repository interaction testing.
+- Alchemist 0.14.1 for golden testing.
+- Integration test package supplied by the Flutter SDK.
+- shared_preferences_android 2.5.4 retained in the lockfile
+  to satisfy the minimum dependency age requirement.
+- No permanent dependency override is required.
+
+### Verified notifier mutation
+
+The member ID filter in HomeSummariesNotifier was temporarily removed.
+
+Before mutation: four tests passed.
+During mutation: two passed and two failed.
+After restoration: four tests passed.
+
+The failing tests were:
+
+- Home uses own contribution status not another member status.
+- Missing own contribution does not expose another member status.
+
+Both failures demonstrated that the tests detect exposure of
+another member's contribution status.
+
+The original production code was restored and verified.
+
+Evidence is stored under submission_evidence in the
+RondiTrack_Assignment_12_1_Evidence/mutations directory.
+
+### Home states and accessibility verification
+
+The Home interface distinguishes live data, offline cached data,
+and cached data displayed after a server failure.
+
+Cached data retains its original update timestamp. Relative cache
+age is localized in English and Sepedi.
+
+The interface displays a bounded correlation reference rather than
+raw API diagnostic details.
+
+Automated verification:
+
+- Existing API Home widget tests: 5 passed.
+- Offline database and cache tests: 18 passed.
+- Localized Home age formatter tests: 10 passed.
+- New Home state and accessibility tests: 12 passed.
+- Full regression suite: 384 passed.
+- Static analysis: no issues found.
+
+Accessibility checks cover cached and error states in both light
+and dark themes:
+
+- androidTapTargetGuideline
+- labeledTapTargetGuideline
+- textContrastGuideline
+
+Semantics handles are disposed using try/finally.
+
+The empty-state navigation test uses a controlled GoRouter
+destination. Full application navigation still requires verification.
+
+Automated accessibility checks do not replace real TalkBack
+testing or manual verification on a physical device.
+
+Manual Chrome verification of English, Sepedi, and cached Home
+states remains part of final submission evidence.
+
+### Network, authentication and cache verification
+
+HTTP 400 and 422 are classified as validation failures rather
+than unexpected server failures.
+
+The failure mapping matrix contains 37 passing tests covering
+HTTP responses, ProblemDetails, correlation references,
+Retry-After headers and transport failures.
+
+The offline Home service contains 15 passing tests covering
+account isolation, stale sessions, cache timestamps, offline
+fallback, server unavailability and authentication refusals.
+
+Five additional Mocktail authentication tests verify:
+
+- 401 refreshes mocked session and retries once.
+- Refused refresh prevents request replay.
+- No connection preserves mocked session.
+- 403 never refreshes the mocked session.
+- Repeated 401 stops after one mocked refresh.
+
+The mocked tests verify interceptor decisions and interactions.
+Existing real authentication-client tests independently verify
+token clearing, concurrent refresh and session invalidation.
+
+Verification checkpoint:
+
+- Network tests: 119 passed.
+- Full regression suite: 401 passed.
+- Static analysis: no issues found.
+- Regression execution time: approximately 54 seconds.
+
+All test credentials and account identifiers are synthetic.
+
+### Golden testing and visual regression
+
+The production Home screen uses a reusable StokvelSummaryCard
+that receives its data through constructor parameters without
+depending on Riverpod or a repository.
+
+Alchemist 0.14.1 verifies six visual scenarios:
+
+- Treasurer with up-to-date contributions in light and dark mode.
+- Member with contributions in arrears in light and dark mode.
+- Member with unknown contribution status in light and dark mode.
+
+Four reference PNG files are maintained:
+
+- Platform-independent CI light and dark goldens.
+- Windows-specific light and dark goldens.
+
+The Windows images were visually inspected before approval.
+All golden test data is synthetic.
+
+Run golden comparisons:
+
+    flutter test test/goldens --reporter expanded
+
+Regenerate reference images only after intentional visual changes
+and review the resulting images before committing:
+
+    flutter test test/goldens --update-goldens
+
+#### Golden mutation evidence
+
+The card padding was temporarily changed from 20 to 32 logical
+pixels without regenerating the approved reference images.
+
+Results:
+
+- Original implementation: five tests passed.
+- Mutated implementation: four golden comparisons failed.
+- The standalone tap-interaction test continued passing.
+- Restored implementation: five tests passed.
+- Full regression: 406 tests passed in 57 seconds.
+- Static analysis: no issues found.
+
+The mutation increased the Windows golden image height from
+768 to 840 pixels and the CI image height from 762 to 834 pixels.
+
+The original source was restored byte-for-byte. Reference images
+were not overwritten during mutation testing.
+
+Approved reference images, failure comparison images and red/green
+test logs are stored in the Assignment 12.1 submission evidence.
+
+## Notifications and Releases - Assignment 12.2
+
+### 1. Notification events and recipients
+
+- Contribution confirmation: notify the affected member's registered devices after successful database persistence.
+- Cycle closing and payout: retrieve updated state from the API.
+- Additional push events are deferred.
+- Notification failures must not reverse successful transactions.
+- Idempotent replays must not trigger duplicate notifications.
+
+### 2. Notification content and privacy
+
+Title: RondiTrack
+Body: You have a new update.
+
+Allowed data fields:
+- type
+- stokvelId
+- cycleId
+
+Never include names, email addresses, contribution amounts,
+stokvel names or financial decisions.
+
+Firebase, operating systems and people viewing locked phones
+may see notification content.
+
+Installation IDs must not appear in application logs.
+
+### 3. Notification lifecycle
+
+- Foreground: display a local notification and refresh data.
+- Background: notification taps open the relevant cycle.
+- Terminated: resolve the initial notification before rendering.
+- Signed out: authenticate before opening the cycle.
+- Non-member: display a safe not-found state.
+- Invalid payload: ignore the navigation request.
+
+Notifications are refresh signals, not authoritative financial data.
+
+### 4. Permission strategy
+
+Request notification permission after the first successfully
+recorded payment.
+
+Explain the benefit before displaying the Android permission dialog.
+
+Not now and Android denial must not prevent payments.
+Do not repeatedly prompt after refusal.
+Persist the prompt decision across sign-outs.
+
+### 5. Payment proof processing
+
+Existing API:
+POST /api/v1/stokvels/{stokvelId}/contributions/{contributionId}/proof
+
+Maximum file size: 5,242,880 bytes.
+Maximum request size: 6,291,456 bytes.
+Accepted formats: PDF, JPEG and PNG.
+
+Mobile processing:
+- Capture or select an image.
+- Correct image orientation.
+- Resize longest side to a maximum of 1600 pixels.
+- Encode JPEG at quality levels 85, 70, 55 and 40.
+- Remove EXIF, GPS and unnecessary metadata.
+- Process images outside the UI isolate.
+- Reject images that cannot meet the API limit.
+- Upload through the authenticated Dio client.
+- Verify payer and treasurer access restrictions.
+
+### 6. Release secrets and settings
+
+Secrets:
+- Android upload keystore and passwords.
+- Firebase service-account credentials.
+- Firebase configuration files supplied through CI secrets.
+- Sentry authentication token.
+
+Non-secret settings:
+- API base URL.
+- Sentry DSN.
+- Expected signing certificate fingerprint.
+
+Keep credentials outside source control.
+Mount backend Firebase credentials read-only.
+Decode CI secrets into temporary runner files.
+
+### 7. Application versioning
+
+Derive version name from a vX.Y.Z Git tag.
+Derive build number from the CI run number.
+Display installed version using package_info_plus.
+
+Do not manually change pubspec.yaml for each release.
+Android version codes must increase.
+Older builds may be rejected as downgrades.
+
+### 8. Reviewer API access
+
+Provide an HTTPS endpoint through a controlled deployment
+or temporary tunnel.
+
+Never expose PostgreSQL directly.
+Trust forwarded headers only from configured proxies.
+Retain authentication and configurable sign-in rate limiting.
+A changed tunnel URL requires a new application build.
+
+### 9. Manual verification
+
+CI cannot replace verification of:
+- Real Firebase push delivery.
+- Lock-screen notification privacy.
+- Android permission behaviour.
+- Camera and gallery selection.
+- Signed APK installation on a second phone.
+- Firebase App Distribution reviewer installation.
+- End-to-end financial workflows.
+
+Document iOS signing, APNs, TestFlight and store publishing
+without requiring paid accounts.
+

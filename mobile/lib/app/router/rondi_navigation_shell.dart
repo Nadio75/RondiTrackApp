@@ -1,3 +1,5 @@
+import '../../core/localization/localization_context.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,6 +27,7 @@ class RondiNavigationShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
+    final l10n = context.l10n;
 
     if (AppBreakpoints.classify(width) != WindowSizeClass.compact) {
       return Scaffold(
@@ -34,22 +37,22 @@ class RondiNavigationShell extends StatelessWidget {
               selectedIndex: navigationShell.currentIndex,
               onDestinationSelected: selectTab,
               labelType: NavigationRailLabelType.all,
-              destinations: const [
+              destinations: [
                 NavigationRailDestination(
                   icon: Icon(Icons.home_outlined),
-                  label: Text('Home'),
+                  label: Text(l10n.home),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.groups_outlined),
-                  label: Text('Stokvels'),
+                  label: Text(l10n.stokvels),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.history),
-                  label: Text('Activity'),
+                  label: Text(l10n.activity),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.person_outline),
-                  label: Text('Profile'),
+                  label: Text(l10n.profile),
                 ),
               ],
             ),
@@ -65,7 +68,24 @@ class RondiNavigationShell extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: selectTab,
-        destinations: destinations,
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.home_outlined),
+            label: l10n.home,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.groups_outlined),
+            label: l10n.stokvels,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.history),
+            label: l10n.activity,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline),
+            label: l10n.profile,
+          ),
+        ],
       ),
     );
   }
